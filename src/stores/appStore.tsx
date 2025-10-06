@@ -161,18 +161,18 @@ export const useAppStore = create<AppStore>()(
                 set({chats: updatedChats, isLoading: true})
 
                 try {
-                    const response = await apiService.sendMessage(targetChatId, content)
+                    await apiService.sendMessage(targetChatId, content)
 
-                    const assistantMessage: Message = {
-                        id: generateId(),
-                        type: 'assistant',
-                        content: response.response,
-                        timestamp: new Date()
-                    }
+                    const messages = await apiService.getChatMessages(targetChatId)
 
                     const finalChats = updatedChats.map(chat =>
                         chat.id === targetChatId
-                            ? {...chat, messages: [...chat.messages, assistantMessage]}
+                            ? {
+                                ...chat, 
+                                messages: messages,
+                                lastMessage: messages[messages.length - 1]?.content || content,
+                                updatedAt: new Date()
+                            }
                             : chat
                     )
 

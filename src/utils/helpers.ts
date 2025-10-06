@@ -8,6 +8,28 @@ export function generateId(): string {
     return Math.random().toString(36).substring(2) + Date.now().toString(36)
 }
 
+export function uuidV7(): string {
+    const timestamp = Date.now()
+    const randomBytes = new Uint8Array(10)
+    crypto.getRandomValues(randomBytes)
+    
+    const timestampHex = timestamp.toString(16).padStart(12, '0')
+    
+    const randomHex = Array.from(randomBytes)
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')
+    
+    const uuid = [
+        timestampHex.slice(0, 8),
+        timestampHex.slice(8, 12),
+        '7' + randomHex.slice(0, 3),
+        ((parseInt(randomHex.slice(3, 4), 16) & 0x3) | 0x8).toString(16) + randomHex.slice(4, 7),
+        randomHex.slice(7, 19)
+    ].join('-')
+    
+    return uuid
+}
+
 export function formatTime(date: Date): string {
     return date.toLocaleTimeString('ru-RU', {
         hour: '2-digit',

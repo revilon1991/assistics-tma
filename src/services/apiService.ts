@@ -1,18 +1,20 @@
-import {Chat, Message, SendMessageResponse, ApiResponse} from '@/types'
+import {Chat, Message} from '@/types/index'
+import {uuidV7} from '@/utils/helpers'
 
 class ApiService {
-    private baseUrl = 'https://your-assistant-api.com' // Замените на ваш API URL
+    private baseUrl = 'https://ui.assistics.net' // Ваш API URL
 
     private async makeRequest<T>(
         endpoint: string,
         options: RequestInit = {}
     ): Promise<T> {
-        const initDataRaw = window.Telegram?.WebApp?.initData || ''
+        const debugInitDataRaw = 'user=%7B%22id%22%3A279058397%2C%22first_name%22%3A%22Vladislav%20%2B%20-%20%3F%20%5C%2F%22%2C%22last_name%22%3A%22Kibenko%22%2C%22username%22%3A%22vdkfrost%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Atrue%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2F4FPEE4tmP3ATHa57u6MqTDih13LTOiMoKoLDRG4PnSA.svg%22%7D&chat_instance=8134722200314281151&chat_type=private&auth_date=1733584787&hash=2174df5b000556d044f3f020384e879c8efcab55ddea2ced4eb752e93e7080d6&signature=zL-ucjNyREiHDE8aihFwpfR9aggP2xiAo3NSpfe-p7IbCisNlDKlo7Kb6G4D0Ao2mBrSgEk4maLSdv6MLIlADQ'
+        const initDataRaw = window.Telegram?.WebApp?.initData || debugInitDataRaw
 
         const defaultOptions: RequestInit = {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'Authorization': `tma ${initDataRaw}`,
                 ...options.headers
             }
@@ -20,10 +22,17 @@ class ApiService {
 
         const finalOptions = {...defaultOptions, ...options}
 
+        console.log(`API Request: ${finalOptions.method} ${this.baseUrl}${endpoint}`, finalOptions)
+        
         const response = await fetch(`${this.baseUrl}${endpoint}`, finalOptions)
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`)
+            console.error(`API Error: ${finalOptions.method} ${this.baseUrl}${endpoint}`, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: Object.fromEntries(response.headers.entries())
+            })
+            throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`)
         }
 
         return response.json()
@@ -31,8 +40,8 @@ class ApiService {
 
     async getChats(): Promise<Chat[]> {
         try {
-            const response = await this.makeRequest<ApiResponse<Chat[]>>('/api/chats')
-            return response.data || []
+            const chats = await this.makeRequest<Chat[]>('/api/chats')
+            return chats || []
         } catch (error) {
             console.error('Failed to fetch chats:', error)
             throw error
@@ -40,58 +49,64 @@ class ApiService {
     }
 
     async createChat(title: string): Promise<Chat> {
-        let response: ApiResponse<Chat>;
+        const chatId = uuidV7()
 
         try {
-            response = await this.makeRequest<ApiResponse<Chat>>('/api/chats', {
-                method: 'POST',
+            const chat = await this.makeRequest<Chat>(`/api/chats/${chatId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({title})
             })
+
+            return chat
         } catch (error) {
             console.error('Failed to create chat:', error)
             throw error
         }
+    }
 
-        if (!response?.data) {
-            throw new Error('No data in response')
+    async getChat(chatId: string): Promise<Chat> {
+        try {
+            const chat = await this.makeRequest<Chat>(`/api/chats/${chatId}`)
+            return chat
+        } catch (error) {
+            console.error('Failed to fetch chat:', error)
+            throw error
         }
-
-        return response.data
     }
 
     async getChatMessages(chatId: string): Promise<Message[]> {
         try {
-            const response = await this.makeRequest<ApiResponse<Message[]>>(
-                `/api/chats/${chatId}/messages`
-            )
-            return response.data || []
+            const messages = await this.makeRequest<Message[]>(`/api/chats/${chatId}/messages`)
+            return messages || []
         } catch (error) {
             console.error('Failed to fetch messages:', error)
             throw error
         }
     }
 
-    async sendMessage(chatId: string, message: string): Promise<SendMessageResponse> {
-        let response: ApiResponse<SendMessageResponse>;
+    async sendMessage(chatId: string, content: string): Promise<Message> {
+        const messageId = uuidV7()
 
         try {
-            response = await this.makeRequest<ApiResponse<SendMessageResponse>>(
-                `/api/chats/${chatId}/messages`,
+            const message = await this.makeRequest<Message>(
+                `/api/chats/${chatId}/messages/${messageId}`,
                 {
-                    method: 'POST',
-                    body: JSON.stringify({message})
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({content})
                 }
             )
+
+            return message
         } catch (error) {
             console.error('Failed to send message:', error)
             throw error
         }
-
-        if (!response.data) {
-            throw new Error('No data in response')
-        }
-
-        return response.data
     }
 }
 
