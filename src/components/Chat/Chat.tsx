@@ -68,10 +68,10 @@ export function Chat() {
                         {currentChat.messages.map((message) => (
                             <div
                                 key={message.id}
-                                className={`message ${message.type}`}
+                                className={`message ${message.author}`}
                             >
                                 <div className="message-avatar">
-                                    {message.type === 'user' ? (
+                                    {message.author === 'customer' ? (
                                         <User size={16}/>
                                     ) : (
                                         <Bot size={16}/>
@@ -80,7 +80,7 @@ export function Chat() {
                                 <div className="message-content">
                                     <div className="message-text">{message.content}</div>
                                     <div className="message-time">
-                                        {formatTime(message.timestamp)}
+                                        {formatTime(message.sent_at)}
                                     </div>
                                 </div>
                             </div>

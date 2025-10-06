@@ -52,20 +52,20 @@ export const useAppStore = create<AppStore>()(
                             messages: [
                                 {
                                     id: '1',
-                                    type: 'user',
+                                    author: 'customer',
                                     content: 'Привет! Как дела?',
-                                    timestamp: new Date()
+                                    sent_at: new Date()
                                 },
                                 {
                                     id: '2',
-                                    type: 'assistant',
+                                    author: 'assistant',
                                     content: 'Привет! У меня все отлично! Готов помочь с любыми вопросами.',
-                                    timestamp: new Date()
+                                    sent_at: new Date()
                                 }
                             ],
                             lastMessage: 'Привет! Как дела?',
-                            updatedAt: new Date(),
-                            createdAt: new Date()
+                            last_message_at: new Date(),
+                            started_at: new Date()
                         }
                     ]
                     set({chats: demoChats, isLoading: false})
@@ -123,9 +123,9 @@ export const useAppStore = create<AppStore>()(
                 // Add user message immediately
                 const userMessage: Message = {
                     id: generateId(),
-                    type: 'user',
+                    author: 'customer',
                     content: content.trim(),
-                    timestamp: new Date()
+                    sent_at: new Date()
                 }
 
                 let targetChatId = currentChatId
@@ -138,8 +138,8 @@ export const useAppStore = create<AppStore>()(
                         title: content.length > 30 ? content.substring(0, 30) + '...' : content,
                         messages: [userMessage],
                         lastMessage: content,
-                        updatedAt: new Date(),
-                        createdAt: new Date()
+                        last_message_at: new Date(),
+                        started_at: new Date()
                     }
                     updatedChats = [newChat, ...chats]
                     targetChatId = newChat.id
@@ -152,7 +152,7 @@ export const useAppStore = create<AppStore>()(
                                 ...chat,
                                 messages: [...chat.messages, userMessage],
                                 lastMessage: content,
-                                updatedAt: new Date()
+                                last_message_at: new Date()
                             }
                             : chat
                     )
@@ -191,9 +191,9 @@ export const useAppStore = create<AppStore>()(
 
                     const assistantMessage: Message = {
                         id: generateId(),
-                        type: 'assistant',
+                        author: 'assistant',
                         content: demoResponses[Math.floor(Math.random() * demoResponses.length)],
-                        timestamp: new Date()
+                        sent_at: new Date()
                     }
 
                     const finalChats = updatedChats.map(chat =>

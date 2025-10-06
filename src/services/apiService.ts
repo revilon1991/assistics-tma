@@ -20,9 +20,19 @@ class ApiService {
             }
         }
 
-        const finalOptions = {...defaultOptions, ...options}
+        const finalOptions = {
+            ...defaultOptions, 
+            ...options,
+            headers: {
+                ...defaultOptions.headers,
+                ...options.headers
+            }
+        }
 
-        console.log(`API Request: ${finalOptions.method} ${this.baseUrl}${endpoint}`, finalOptions)
+        console.log(`API Request: ${finalOptions.method} ${this.baseUrl}${endpoint}`)
+        console.log('Final Headers:', finalOptions.headers)
+        console.log('InitData length:', initDataRaw.length)
+        console.log('Authorization header:', (finalOptions.headers as any)?.Authorization)
         
         const response = await fetch(`${this.baseUrl}${endpoint}`, finalOptions)
 

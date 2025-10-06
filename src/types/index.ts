@@ -1,8 +1,8 @@
 export interface Message {
     id: string;
-    type: 'user' | 'assistant';
+    author: 'customer' | 'assistant';
     content: string;
-    timestamp: Date;
+    sent_at: Date;
 }
 
 export interface Chat {
@@ -10,8 +10,8 @@ export interface Chat {
     title: string;
     messages: Message[];
     lastMessage?: string;
-    updatedAt: Date;
-    createdAt: Date;
+    last_message_at: Date;
+    started_at: Date;
 }
 
 export interface ApiResponse<T> {

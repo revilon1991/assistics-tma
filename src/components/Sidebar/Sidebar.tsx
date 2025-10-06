@@ -91,7 +91,7 @@ export function Sidebar() {
                                     </div>
                                     <div className="chat-meta">
                                         <div className="chat-date">
-                                            {formatDate(chat.updatedAt)}
+                                            {formatDate(chat.last_message_at)}
                                         </div>
                                         {chat.messages.length > 0 && (
                                             <div className="message-count">
