@@ -55,7 +55,7 @@ export function Chat() {
                             <p>Начните новый разговор, отправив сообщение ниже.</p>
                         </div>
                     </div>
-                ) : currentChat.messages.length === 0 ? (
+                ) : (currentChat.messages || []).length === 0 ? (
                     <div className="welcome-screen">
                         <div className="welcome-content">
                             <Bot size={48} className="welcome-icon"/>
@@ -65,7 +65,7 @@ export function Chat() {
                     </div>
                 ) : (
                     <div className="messages-list">
-                        {currentChat.messages.map((message) => (
+                        {(currentChat.messages || []).map((message) => (
                             <div
                                 key={message.id}
                                 className={`message ${message.author}`}

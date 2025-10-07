@@ -54,18 +54,18 @@ export const useAppStore = create<AppStore>()(
                                     id: '1',
                                     author: 'customer',
                                     content: 'Привет! Как дела?',
-                                    sent_at: new Date()
+                                    sent_at: Math.floor(Date.now() / 1000)
                                 },
                                 {
                                     id: '2',
                                     author: 'assistant',
                                     content: 'Привет! У меня все отлично! Готов помочь с любыми вопросами.',
-                                    sent_at: new Date()
+                                    sent_at: Math.floor(Date.now() / 1000)
                                 }
                             ],
                             lastMessage: 'Привет! Как дела?',
-                            last_message_at: new Date(),
-                            started_at: new Date()
+                            last_message_at: Math.floor(Date.now() / 1000),
+                            started_at: Math.floor(Date.now() / 1000)
                         }
                     ]
                     set({chats: demoChats, isLoading: false})
@@ -125,7 +125,7 @@ export const useAppStore = create<AppStore>()(
                     id: generateId(),
                     author: 'customer',
                     content: content.trim(),
-                    sent_at: new Date()
+                    sent_at: Math.floor(Date.now() / 1000)
                 }
 
                 let targetChatId = currentChatId
@@ -138,8 +138,8 @@ export const useAppStore = create<AppStore>()(
                         title: content.length > 30 ? content.substring(0, 30) + '...' : content,
                         messages: [userMessage],
                         lastMessage: content,
-                        last_message_at: new Date(),
-                        started_at: new Date()
+                        last_message_at: Math.floor(Date.now() / 1000),
+                        started_at: Math.floor(Date.now() / 1000)
                     }
                     updatedChats = [newChat, ...chats]
                     targetChatId = newChat.id
@@ -150,9 +150,9 @@ export const useAppStore = create<AppStore>()(
                         chat.id === targetChatId
                             ? {
                                 ...chat,
-                                messages: [...chat.messages, userMessage],
+                                messages: [...(chat.messages || []), userMessage],
                                 lastMessage: content,
-                                last_message_at: new Date()
+                                last_message_at: Math.floor(Date.now() / 1000)
                             }
                             : chat
                     )
@@ -171,7 +171,7 @@ export const useAppStore = create<AppStore>()(
                                 ...chat, 
                                 messages: messages,
                                 lastMessage: messages[messages.length - 1]?.content || content,
-                                updatedAt: new Date()
+                                last_message_at: messages[messages.length - 1]?.sent_at || Math.floor(Date.now() / 1000)
                             }
                             : chat
                     )
@@ -193,12 +193,12 @@ export const useAppStore = create<AppStore>()(
                         id: generateId(),
                         author: 'assistant',
                         content: demoResponses[Math.floor(Math.random() * demoResponses.length)],
-                        sent_at: new Date()
+                        sent_at: Math.floor(Date.now() / 1000)
                     }
 
                     const finalChats = updatedChats.map(chat =>
                         chat.id === targetChatId
-                            ? {...chat, messages: [...chat.messages, assistantMessage]}
+                            ? {...chat, messages: [...(chat.messages || []), assistantMessage]}
                             : chat
                     )
 

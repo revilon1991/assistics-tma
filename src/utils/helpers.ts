@@ -30,14 +30,26 @@ export function uuidV7(): string {
     return uuid
 }
 
-export function formatTime(date: Date): string {
+export function formatTime(timestamp: number | Date): string {
+    const date = typeof timestamp === 'number' ? new Date(timestamp * 1000) : timestamp
+    
+    if (isNaN(date.getTime())) {
+        return '--:--'
+    }
+    
     return date.toLocaleTimeString('ru-RU', {
         hour: '2-digit',
         minute: '2-digit'
     })
 }
 
-export function formatDate(date: Date): string {
+export function formatDate(timestamp: number | Date): string {
+    const date = typeof timestamp === 'number' ? new Date(timestamp * 1000) : timestamp
+    
+    if (isNaN(date.getTime())) {
+        return 'Неизвестно'
+    }
+    
     const now = new Date()
     const diff = now.getTime() - date.getTime()
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))

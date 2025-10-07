@@ -1,17 +1,17 @@
 export interface Message {
     id: string;
-    author: 'customer' | 'assistant';
     content: string;
-    sent_at: Date;
+    author: 'customer' | 'assistant';
+    sent_at: number; // Unix timestamp
 }
 
 export interface Chat {
     id: string;
     title: string;
-    messages: Message[];
-    lastMessage?: string;
-    last_message_at: Date;
-    started_at: Date;
+    started_at: number; // Unix timestamp
+    last_message_at: number; // Unix timestamp
+    messages?: Message[]; // Добавляем опционально для локального состояния
+    lastMessage?: string; // Для локального состояния
 }
 
 export interface ApiResponse<T> {
