@@ -2,7 +2,9 @@ import {useEffect} from 'react'
 import {Chat} from './components/Chat/Chat'
 import {Sidebar} from './components/Sidebar/Sidebar'
 import {Toast} from './components/Toast/Toast'
+import DebugPanel from './components/DebugPanel'
 import {useAppStore} from './stores/appStore'
+import {useDebugLogger} from './hooks/useDebugLogger'
 import './App.css'
 
 // Объявляем глобальный интерфейс для Telegram WebApp
@@ -24,6 +26,7 @@ declare global {
 
 function App() {
     const {initializeApp, toasts} = useAppStore()
+    const {logs, clearLogs} = useDebugLogger()
 
     useEffect(() => {
         // Инициализация Telegram WebApp
@@ -57,6 +60,10 @@ function App() {
             <Sidebar/>
             <Chat/>
             <Toast messages={toasts}/>
+            <DebugPanel 
+                logs={logs} 
+                onClear={clearLogs}
+            />
         </div>
     )
 }
