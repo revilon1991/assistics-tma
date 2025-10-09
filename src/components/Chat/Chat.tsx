@@ -9,7 +9,7 @@ export function Chat() {
     const {
         chats,
         currentChatId,
-        isLoading,
+        isTyping,
         toggleSidebar,
         sendMessage
     } = useAppStore()
@@ -86,7 +86,7 @@ export function Chat() {
                             </div>
                         ))}
 
-                        {isLoading && (
+                        {isTyping && (
                             <div className="message assistant">
                                 <div className="message-avatar">
                                     <Bot size={16}/>
@@ -109,7 +109,7 @@ export function Chat() {
                 )}
             </div>
 
-            <Input onSendMessage={handleSendMessage} disabled={isLoading}/>
+            <Input onSendMessage={handleSendMessage} disabled={isTyping}/>
         </div>
     )
 }

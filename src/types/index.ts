@@ -44,6 +44,7 @@ export interface AppState {
     chats: Chat[];
     currentChatId: string | null;
     isLoading: boolean;
+    isTyping: boolean;
     sidebarOpen: boolean;
     toasts: ToastMessage[];
 }

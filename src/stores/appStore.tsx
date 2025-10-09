@@ -20,6 +20,7 @@ interface AppStore extends AppState {
     removeToast: (id: string) => void
 
     setLoading: (loading: boolean) => void
+    setTyping: (typing: boolean) => void
 }
 
 export const useAppStore = create<AppStore>()(
@@ -29,6 +30,7 @@ export const useAppStore = create<AppStore>()(
             chats: [],
             currentChatId: null,
             isLoading: false,
+            isTyping: false,
             sidebarOpen: false,
             toasts: [],
 
@@ -128,7 +130,7 @@ export const useAppStore = create<AppStore>()(
                     )
                 }
 
-                set({chats: updatedChats, isLoading: true})
+                set({chats: updatedChats, isTyping: true})
 
                 try {
                     await apiService.sendMessage(targetChatId, content)
@@ -146,14 +148,14 @@ export const useAppStore = create<AppStore>()(
                             : chat
                     )
 
-                    set({chats: finalChats, isLoading: false})
+                    set({chats: finalChats, isTyping: false})
                 } catch (error) {
                     console.error('Failed to send message:', error)
                     get().addToast({
                         type: 'error',
                         message: 'Не удалось загрузить чат'
                     })
-                    set({isLoading: false})
+                    set({isTyping: false})
                 }
             },
 
@@ -161,6 +163,7 @@ export const useAppStore = create<AppStore>()(
             setSidebarOpen: (open: boolean) => set({sidebarOpen: open}),
             setCurrentChat: (chatId: string | null) => set({currentChatId: chatId}),
             setLoading: (loading: boolean) => set({isLoading: loading}),
+            setTyping: (typing: boolean) => set({isTyping: typing}),
 
             addToast: (toast) => {
                 const newToast: ToastMessage = {

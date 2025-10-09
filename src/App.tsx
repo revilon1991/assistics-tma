@@ -2,8 +2,9 @@ import {useEffect} from 'react'
 import {Chat} from '@/components/Chat/Chat'
 import {Sidebar} from '@/components/Sidebar/Sidebar'
 import {Toast} from '@/components/Toast/Toast'
+import {Loader} from '@/components/Loader/Loader'
 import {useAppStore} from '@/stores/appStore'
-import {expandViewport, init, miniAppReady} from '@telegram-apps/sdk';
+import {expandViewport, init, miniAppReady, bindThemeParamsCssVars, mountThemeParamsSync} from '@telegram-apps/sdk';
 import '@/App.css'
 import {SecureStorage} from '@/types/tma'
 
@@ -21,7 +22,7 @@ declare global {
 }
 
 function App() {
-    const {initializeApp, toasts} = useAppStore()
+    const {initializeApp, toasts, isLoading} = useAppStore()
 
     useEffect(() => {
         const initTelegram = async () => {
@@ -31,11 +32,16 @@ function App() {
                 const tg = window.Telegram?.WebApp
 
                 if (tg) {
-                    console.log(tg)
                     tg.ready()
                     tg.expand()
+                }
 
-                    console.log('InitData:', tg.initData)
+                if (mountThemeParamsSync.isAvailable()) {
+                    mountThemeParamsSync()
+                }
+
+                if (bindThemeParamsCssVars.isAvailable()) {
+                    bindThemeParamsCssVars()
                 }
 
                 await initializeApp()
@@ -52,6 +58,7 @@ function App() {
             <Sidebar/>
             <Chat/>
             <Toast messages={toasts}/>
+            <Loader isVisible={isLoading}/>
         </div>
     )
 }

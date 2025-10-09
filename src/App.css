@@ -14,6 +14,15 @@
 
     --sidebar-width: 260px;
     --header-height: 60px;
+
+    --tg-theme-bg-color: var(--bg-primary);
+    --tg-theme-text-color: var(--text-primary);
+    --tg-theme-hint-color: var(--text-secondary);
+    --tg-theme-link-color: var(--accent-color);
+    --tg-theme-button-color: var(--accent-color);
+    --tg-theme-button-text-color: #ffffff;
+    --tg-theme-secondary-bg-color: var(--bg-secondary);
+    --tg-theme-accent-text-color: var(--accent-color);
 }
 
 * {
