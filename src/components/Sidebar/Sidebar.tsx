@@ -1,7 +1,7 @@
-import {X, Plus, MessageCircle} from 'lucide-react'
-import {useAppStore} from '../../stores/appStore'
+import {MessageCircle, Plus, X} from 'lucide-react'
+import {useAppStore} from '@/stores/appStore'
 import {formatDate, truncateText} from '@/utils/helpers'
-import './Sidebar.css'
+import '@/components/Sidebar/Sidebar.css'
 
 export function Sidebar() {
     const {

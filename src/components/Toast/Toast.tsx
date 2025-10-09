@@ -1,7 +1,7 @@
-import {X, CheckCircle, AlertCircle, AlertTriangle, Info} from 'lucide-react'
-import {useAppStore} from '../../stores/appStore'
+import {AlertCircle, AlertTriangle, CheckCircle, Info, X} from 'lucide-react'
+import {useAppStore} from '@/stores/appStore'
 import {ToastMessage} from '@/types'
-import './Toast.css'
+import '@/components/Toast/Toast.css'
 
 interface ToastProps {
     messages: ToastMessage[]

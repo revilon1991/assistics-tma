@@ -1,6 +1,6 @@
-import {useState, useRef, useEffect} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {Send} from 'lucide-react'
-import './Input.css'
+import '@/components/Input/Input.css'
 
 interface InputProps {
     onSendMessage: (message: string) => Promise<void>
@@ -17,7 +17,6 @@ export function Input({onSendMessage, disabled = false}: InputProps) {
     }, [message])
 
     useEffect(() => {
-        // Инициализация Telegram WebApp viewport
         const tg = window.Telegram?.WebApp
         if (tg) {
             tg.expand()
@@ -47,7 +46,6 @@ export function Input({onSendMessage, disabled = false}: InputProps) {
             await onSendMessage(trimmedMessage)
         } catch (error) {
             console.error('Failed to send message:', error)
-            // Возвращаем сообщение обратно при ошибке
             setMessage(trimmedMessage)
         }
     }
@@ -60,7 +58,6 @@ export function Input({onSendMessage, disabled = false}: InputProps) {
     }
 
     const handleFocus = () => {
-        // Telegram WebApp автоматически обрабатывает появление клавиатуры
         setTimeout(() => {
             textareaRef.current?.scrollIntoView({
                 behavior: 'smooth',

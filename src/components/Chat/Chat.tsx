@@ -1,9 +1,9 @@
 import {useEffect, useRef} from 'react'
-import {Menu, User, Bot} from 'lucide-react'
-import {useAppStore} from '../../stores/appStore'
-import {Input} from '../Input/Input'
+import {Bot, Menu, User} from 'lucide-react'
+import {useAppStore} from '@/stores/appStore'
+import {Input} from '@/components/Input/Input'
 import {formatTime} from '@/utils/helpers'
-import './Chat.css'
+import '@/components/Chat/Chat.css'
 
 export function Chat() {
     const {

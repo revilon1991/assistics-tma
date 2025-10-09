@@ -1,21 +1,20 @@
 import {useEffect} from 'react'
-import {Chat} from './components/Chat/Chat'
-import {Sidebar} from './components/Sidebar/Sidebar'
-import {Toast} from './components/Toast/Toast'
-import {useAppStore} from './stores/appStore'
-import './App.css'
+import {Chat} from '@/components/Chat/Chat'
+import {Sidebar} from '@/components/Sidebar/Sidebar'
+import {Toast} from '@/components/Toast/Toast'
+import {useAppStore} from '@/stores/appStore'
+import {expandViewport, init, miniAppReady} from '@telegram-apps/sdk';
+import '@/App.css'
+import {SecureStorage} from '@/types/tma'
 
 declare global {
     interface Window {
         Telegram?: {
             WebApp?: {
-                ready: () => void
-                expand: () => void
+                ready: typeof miniAppReady
+                expand: typeof expandViewport
                 initData: string
-                initDataUnsafe: any
-                user?: any
-                colorScheme: string
-                onEvent: (event: string, callback: () => void) => void
+                SecureStorage: SecureStorage
             }
         }
     }
@@ -27,13 +26,15 @@ function App() {
     useEffect(() => {
         const initTelegram = async () => {
             try {
+                init();
+
                 const tg = window.Telegram?.WebApp
+
                 if (tg) {
+                    console.log(tg)
                     tg.ready()
                     tg.expand()
 
-                    console.log('Telegram WebApp initialized')
-                    console.log('User:', tg.initDataUnsafe?.user)
                     console.log('InitData:', tg.initData)
                 }
 
@@ -43,7 +44,7 @@ function App() {
             }
         }
 
-        initTelegram()
+        initTelegram().finally()
     }, [initializeApp])
 
     return (

@@ -2,16 +2,17 @@ export interface Message {
     id: string;
     content: string;
     author: 'customer' | 'assistant';
-    sent_at: number; // Unix timestamp
+    sent_at: number;
 }
 
 export interface Chat {
     id: string;
     title: string;
-    started_at: number; // Unix timestamp
-    last_message_at: number; // Unix timestamp
-    messages?: Message[]; // Добавляем опционально для локального состояния
-    lastMessage?: string; // Для локального состояния
+    started_at: number;
+    last_message: string;
+    last_message_at: number;
+    messages?: Message[];
+    lastMessage?: string;
 }
 
 export interface ApiResponse<T> {
@@ -39,6 +40,7 @@ export interface ToastMessage {
 }
 
 export interface AppState {
+    tmaInitData: string;
     chats: Chat[];
     currentChatId: string | null;
     isLoading: boolean;
