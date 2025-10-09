@@ -5,7 +5,6 @@ import {Toast} from './components/Toast/Toast'
 import {useAppStore} from './stores/appStore'
 import './App.css'
 
-// Объявляем глобальный интерфейс для Telegram WebApp
 declare global {
     interface Window {
         Telegram?: {
@@ -26,12 +25,10 @@ function App() {
     const {initializeApp, toasts} = useAppStore()
 
     useEffect(() => {
-        // Инициализация Telegram WebApp
         const initTelegram = async () => {
             try {
                 const tg = window.Telegram?.WebApp
                 if (tg) {
-                    // Инициализируем Telegram WebApp
                     tg.ready()
                     tg.expand()
 
@@ -40,12 +37,9 @@ function App() {
                     console.log('InitData:', tg.initData)
                 }
 
-                // Инициализируем приложение
                 await initializeApp()
             } catch (error) {
                 console.error('Failed to initialize Telegram WebApp:', error)
-                // Инициализируем в demo режиме
-                await initializeApp()
             }
         }
 

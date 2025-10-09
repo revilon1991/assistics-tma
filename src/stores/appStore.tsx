@@ -5,24 +5,19 @@ import {apiService} from '../services/apiService'
 import {generateId} from '../utils/helpers'
 
 interface AppStore extends AppState {
-    // Actions
     initializeApp: () => Promise<void>
 
-    // Chat actions
     createNewChat: () => Promise<void>
     loadChat: (chatId: string) => Promise<void>
     sendMessage: (content: string) => Promise<void>
 
-    // UI actions
     toggleSidebar: () => void
     setSidebarOpen: (open: boolean) => void
     setCurrentChat: (chatId: string | null) => void
 
-    // Toast actions
     addToast: (toast: Omit<ToastMessage, 'id'>) => void
     removeToast: (id: string) => void
 
-    // Loading
     setLoading: (loading: boolean) => void
 }
 
@@ -36,7 +31,6 @@ export const useAppStore = create<AppStore>()(
             sidebarOpen: false,
             toasts: [],
 
-            // Initialize app
             initializeApp: async () => {
                 set({isLoading: true})
                 try {
@@ -44,35 +38,9 @@ export const useAppStore = create<AppStore>()(
                     set({chats, isLoading: false})
                 } catch (error) {
                     console.error('Failed to initialize app:', error)
-                    // Load demo data
-                    const demoChats: Chat[] = [
-                        {
-                            id: 'demo-1',
-                            title: 'Первый чат',
-                            messages: [
-                                {
-                                    id: '1',
-                                    author: 'customer',
-                                    content: 'Привет! Как дела?',
-                                    sent_at: Math.floor(Date.now() / 1000)
-                                },
-                                {
-                                    id: '2',
-                                    author: 'assistant',
-                                    content: 'Привет! У меня все отлично! Готов помочь с любыми вопросами.',
-                                    sent_at: Math.floor(Date.now() / 1000)
-                                }
-                            ],
-                            lastMessage: 'Привет! Как дела?',
-                            last_message_at: Math.floor(Date.now() / 1000),
-                            started_at: Math.floor(Date.now() / 1000)
-                        }
-                    ]
-                    set({chats: demoChats, isLoading: false})
                 }
             },
 
-            // Create new chat
             createNewChat: async () => {
                 set({isLoading: true})
                 try {
@@ -82,7 +50,7 @@ export const useAppStore = create<AppStore>()(
                         chats: [newChat, ...chats],
                         currentChatId: newChat.id,
                         isLoading: false,
-                        sidebarOpen: false
+                        sidebarOpen: false,
                     })
                 } catch (error) {
                     console.error('Failed to create chat:', error)
@@ -94,7 +62,6 @@ export const useAppStore = create<AppStore>()(
                 }
             },
 
-            // Load chat
             loadChat: async (chatId: string) => {
                 set({isLoading: true, currentChatId: chatId})
                 try {
@@ -114,13 +81,11 @@ export const useAppStore = create<AppStore>()(
                 }
             },
 
-            // Send message
             sendMessage: async (content: string) => {
                 const {currentChatId, chats} = get()
 
                 if (!content.trim()) return
 
-                // Add user message immediately
                 const userMessage: Message = {
                     id: generateId(),
                     author: 'customer',
@@ -131,7 +96,6 @@ export const useAppStore = create<AppStore>()(
                 let targetChatId = currentChatId
                 let updatedChats: Chat[]
 
-                // Create new chat if none selected
                 if (!targetChatId) {
                     const newChat: Chat = {
                         id: generateId(),
@@ -145,7 +109,6 @@ export const useAppStore = create<AppStore>()(
                     targetChatId = newChat.id
                     set({currentChatId: targetChatId})
                 } else {
-                    // Add to existing chat
                     updatedChats = chats.map(chat =>
                         chat.id === targetChatId
                             ? {
@@ -179,40 +142,19 @@ export const useAppStore = create<AppStore>()(
                     set({chats: finalChats, isLoading: false})
                 } catch (error) {
                     console.error('Failed to send message:', error)
-
-                    // Demo response for development
-                    const demoResponses = [
-                        'Интересный вопрос! Давайте разберем это подробнее.',
-                        'Я понимаю вашу точку зрения. Вот что я думаю по этому поводу...',
-                        'Отличная идея! Это можно реализовать несколькими способами.',
-                        'Спасибо за вопрос! Вот подробный ответ на него.',
-                        'Это действительно важная тема. Позвольте мне объяснить.'
-                    ]
-
-                    const assistantMessage: Message = {
-                        id: generateId(),
-                        author: 'assistant',
-                        content: demoResponses[Math.floor(Math.random() * demoResponses.length)],
-                        sent_at: Math.floor(Date.now() / 1000)
-                    }
-
-                    const finalChats = updatedChats.map(chat =>
-                        chat.id === targetChatId
-                            ? {...chat, messages: [...(chat.messages || []), assistantMessage]}
-                            : chat
-                    )
-
-                    set({chats: finalChats, isLoading: false})
+                    get().addToast({
+                        type: 'error',
+                        message: 'Не удалось загрузить чат'
+                    })
+                    set({isLoading: false})
                 }
             },
 
-            // UI actions
             toggleSidebar: () => set(state => ({sidebarOpen: !state.sidebarOpen})),
             setSidebarOpen: (open: boolean) => set({sidebarOpen: open}),
             setCurrentChat: (chatId: string | null) => set({currentChatId: chatId}),
             setLoading: (loading: boolean) => set({isLoading: loading}),
 
-            // Toast actions
             addToast: (toast) => {
                 const newToast: ToastMessage = {
                     ...toast,
@@ -220,7 +162,6 @@ export const useAppStore = create<AppStore>()(
                 }
                 set(state => ({toasts: [...state.toasts, newToast]}))
 
-                // Auto remove toast
                 setTimeout(() => {
                     get().removeToast(newToast.id)
                 }, toast.duration || 5000)
