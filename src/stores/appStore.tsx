@@ -1,6 +1,6 @@
 import {create} from 'zustand'
 import {devtools} from 'zustand/middleware'
-import {AppState, Chat, Message, ToastMessage, AuthTokens} from '@/types'
+import {AppState, Chat, ToastMessage, AuthTokens} from '@/types'
 import {apiService} from '@/services/apiService'
 import {authService} from '@/services/authService'
 import {generateId} from '@/utils/helpers'
@@ -126,34 +126,27 @@ export const useAppStore = create<AppStore>()(
 
                 if (!content.trim()) return
 
-                const userMessage: Message = {
-                    id: generateId(),
-                    author: 'customer',
-                    content: content.trim(),
-                    sent_at: Math.floor(Date.now() / 1000)
-                }
-
                 let targetChatId = currentChatId
                 let updatedChats: Chat[]
 
                 if (!targetChatId) {
+                    const newChatId = generateId()
                     const newChat: Chat = {
-                        id: generateId(),
+                        id: newChatId,
                         title: content.length > 30 ? content.substring(0, 30) + '...' : content,
-                        messages: [userMessage],
+                        messages: [],
                         last_message: content,
                         last_message_at: Math.floor(Date.now() / 1000),
                         started_at: Math.floor(Date.now() / 1000)
                     }
                     updatedChats = [newChat, ...chats]
-                    targetChatId = newChat.id
+                    targetChatId = newChatId
                     set({currentChatId: targetChatId})
                 } else {
                     updatedChats = chats.map(chat =>
                         chat.id === targetChatId
                             ? {
                                 ...chat,
-                                messages: [...(chat.messages || []), userMessage],
                                 last_message: content,
                                 last_message_at: Math.floor(Date.now() / 1000)
                             }
@@ -164,15 +157,13 @@ export const useAppStore = create<AppStore>()(
                 set({chats: updatedChats, isTyping: true})
 
                 try {
-                    await apiService.sendMessage(targetChatId, content)
-
-                    const messages = await apiService.getChatMessages(targetChatId)
+                    const messages = await apiService.sendMessage(targetChatId, content)
 
                     const finalChats = updatedChats.map(chat =>
                         chat.id === targetChatId
                             ? {
                                 ...chat,
-                                messages: messages,
+                                messages: [...(chat.messages || []), ...messages],
                                 last_message: messages[messages.length - 1]?.content || content,
                                 last_message_at: messages[messages.length - 1]?.sent_at || Math.floor(Date.now() / 1000)
                             }
@@ -184,7 +175,7 @@ export const useAppStore = create<AppStore>()(
                     console.error('Failed to send message:', error)
                     get().addToast({
                         type: 'error',
-                        message: 'Не удалось загрузить чат'
+                        message: 'Не удалось отправить сообщение'
                     })
                     set({isTyping: false})
                 }

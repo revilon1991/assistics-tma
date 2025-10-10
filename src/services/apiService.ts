@@ -47,7 +47,16 @@ class ApiService {
             throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`)
         }
 
-        return response.json()
+        if (response.status === 204) {
+            return {} as T
+        }
+
+        try {
+            return await response.json()
+        } catch (error) {
+            console.warn('Failed to parse JSON response, returning empty object')
+            return {} as T
+        }
     }
 
     async getChats(): Promise<Chat[]> {
@@ -64,13 +73,25 @@ class ApiService {
         const chatId = uuidV7()
 
         try {
-            return await this.makeRequest<Chat>(`/api/chats/${chatId}`, {
+            const response = await this.makeRequest<Chat>(`/api/chats/${chatId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({title})
             })
+
+            if (!response || Object.keys(response).length === 0) {
+                return {
+                    id: chatId,
+                    title: title,
+                    started_at: Math.floor(Date.now() / 1000),
+                    last_message: '',
+                    last_message_at: Math.floor(Date.now() / 1000)
+                }
+            }
+            
+            return response
         } catch (error) {
             console.error('Failed to create chat:', error)
             throw error
@@ -96,11 +117,11 @@ class ApiService {
         }
     }
 
-    async sendMessage(chatId: string, content: string): Promise<Message> {
+    async sendMessage(chatId: string, content: string): Promise<Message[]> {
         const messageId = uuidV7()
 
         try {
-            return await this.makeRequest<Message>(
+            const response = await this.makeRequest<Message[]>(
                 `/api/chats/${chatId}/messages/${messageId}`,
                 {
                     method: 'PUT',
@@ -110,6 +131,17 @@ class ApiService {
                     body: JSON.stringify({content})
                 }
             )
+
+            if (!response || !Array.isArray(response) || response.length === 0) {
+                return [{
+                    id: messageId,
+                    content: content,
+                    author: 'customer',
+                    sent_at: Math.floor(Date.now() / 1000)
+                }]
+            }
+
+            return response
         } catch (error) {
             console.error('Failed to send message:', error)
             throw error
