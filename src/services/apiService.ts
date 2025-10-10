@@ -1,6 +1,6 @@
 import {Chat, Message} from '@/types/index.ts'
 import {uuidV7} from '@/utils/helpers'
-import {useAppStore} from '@/stores/appStore'
+import {authService} from '@/services/authService'
 
 class ApiService {
     private baseUrl = 'https://ui.assistics.net'
@@ -9,13 +9,17 @@ class ApiService {
         endpoint: string,
         options: RequestInit = {}
     ): Promise<T> {
-        const tmaInitData = useAppStore.getState().tmaInitData
+        const accessToken = await authService.getAccessToken()
+        
+        if (!accessToken) {
+            throw new Error('Нет токена авторизации')
+        }
 
         const defaultOptions: RequestInit = {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
-                'Authorization': `tma ${tmaInitData}`,
+                'Authorization': `Bearer ${accessToken}`,
                 ...options.headers
             }
         }

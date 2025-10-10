@@ -39,6 +39,24 @@ export interface ToastMessage {
     duration?: number;
 }
 
+export interface TokenResponse {
+    access_token: string;
+    refresh_token: string;
+    token_type: string;
+    expires_in: number;
+    issued_at: number;
+    kid: string;
+    audience: string;
+    scope: string;
+}
+
+export interface AuthTokens {
+    accessToken: string;
+    refreshToken: string;
+    expiresAt: number;
+    issuedAt: number;
+}
+
 export interface AppState {
     tmaInitData: string;
     chats: Chat[];
@@ -47,4 +65,6 @@ export interface AppState {
     isTyping: boolean;
     sidebarOpen: boolean;
     toasts: ToastMessage[];
+    authTokens: AuthTokens | null;
+    isAuthenticated: boolean;
 }

@@ -1,12 +1,14 @@
 import {create} from 'zustand'
 import {devtools} from 'zustand/middleware'
-import {AppState, Chat, Message, ToastMessage} from '@/types'
+import {AppState, Chat, Message, ToastMessage, AuthTokens} from '@/types'
 import {apiService} from '@/services/apiService'
+import {authService} from '@/services/authService'
 import {generateId} from '@/utils/helpers'
 import {retrieveRawInitData} from '@telegram-apps/bridge';
 
 interface AppStore extends AppState {
     initializeApp: () => Promise<void>
+    authenticate: () => Promise<void>
 
     createNewChat: () => Promise<void>
     loadChat: (chatId: string) => Promise<void>
@@ -21,6 +23,8 @@ interface AppStore extends AppState {
 
     setLoading: (loading: boolean) => void
     setTyping: (typing: boolean) => void
+    setAuthTokens: (tokens: AuthTokens | null) => void
+    setIsAuthenticated: (authenticated: boolean) => void
 }
 
 export const useAppStore = create<AppStore>()(
@@ -33,6 +37,8 @@ export const useAppStore = create<AppStore>()(
             isTyping: false,
             sidebarOpen: false,
             toasts: [],
+            authTokens: null,
+            isAuthenticated: false,
 
             initializeApp: async () => {
                 set({isLoading: true})
@@ -43,10 +49,35 @@ export const useAppStore = create<AppStore>()(
                 set({tmaInitData: tmaInitData})
 
                 try {
+                    const isAuth = await authService.isAuthenticated()
+                    if (!isAuth) {
+                        await get().authenticate()
+                    }
+
                     const chats = await apiService.getChats()
                     set({chats, isLoading: false})
                 } catch (error) {
                     console.error('Failed to initialize app:', error)
+                    get().addToast({
+                        type: 'error',
+                        message: 'Не удалось инициализировать приложение'
+                    })
+                    set({isLoading: false})
+                }
+            },
+
+            authenticate: async () => {
+                const {tmaInitData} = get()
+                try {
+                    const tokens = await authService.authenticate(tmaInitData)
+                    set({authTokens: tokens, isAuthenticated: true})
+                } catch (error) {
+                    console.error('Failed to authenticate:', error)
+                    get().addToast({
+                        type: 'error',
+                        message: 'Не удалось авторизоваться'
+                    })
+                    throw error
                 }
             },
 
@@ -179,7 +210,10 @@ export const useAppStore = create<AppStore>()(
 
             removeToast: (id: string) => {
                 set(state => ({toasts: state.toasts.filter(t => t.id !== id)}))
-            }
+            },
+
+            setAuthTokens: (tokens: AuthTokens | null) => set({authTokens: tokens}),
+            setIsAuthenticated: (authenticated: boolean) => set({isAuthenticated: authenticated})
         }),
         {
             name: 'telegram-chat-app'
