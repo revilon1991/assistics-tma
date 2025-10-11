@@ -129,34 +129,23 @@ export const useAppStore = create<AppStore>()(
                 let targetChatId = currentChatId
                 let updatedChats: Chat[]
 
-                if (!targetChatId) {
-                    const newChatId = generateId()
-                    const newChat: Chat = {
-                        id: newChatId,
-                        title: content.length > 30 ? content.substring(0, 30) + '...' : content,
-                        messages: [],
-                        last_message: content,
-                        last_message_at: Math.floor(Date.now() / 1000),
-                        started_at: Math.floor(Date.now() / 1000)
-                    }
-                    updatedChats = [newChat, ...chats]
-                    targetChatId = newChatId
-                    set({currentChatId: targetChatId})
-                } else {
-                    updatedChats = chats.map(chat =>
-                        chat.id === targetChatId
-                            ? {
-                                ...chat,
-                                last_message: content,
-                                last_message_at: Math.floor(Date.now() / 1000)
-                            }
-                            : chat
-                    )
-                }
-
-                set({chats: updatedChats, isTyping: true})
+                set({isTyping: true})
 
                 try {
+                    if (!targetChatId) {
+                        const title = content.length > 30 ? content.substring(0, 30) + '...' : content
+                        const newChat = await apiService.createChat(title)
+                        targetChatId = newChat.id
+                        
+                        updatedChats = [newChat, ...chats]
+                        set({
+                            currentChatId: targetChatId,
+                            chats: updatedChats
+                        })
+                    } else {
+                        updatedChats = chats
+                    }
+
                     const messages = await apiService.sendMessage(targetChatId, content)
 
                     const finalChats = updatedChats.map(chat =>
