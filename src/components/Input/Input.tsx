@@ -11,6 +11,7 @@ interface InputProps {
 export function Input({onSendMessage, disabled = false}: InputProps) {
     const [message, setMessage] = useState('')
     const [isExpanded, setIsExpanded] = useState(false)
+    const [isAtMaxHeight, setIsAtMaxHeight] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
 
     useEffect(() => {
@@ -32,6 +33,7 @@ export function Input({onSendMessage, disabled = false}: InputProps) {
         textarea.style.height = newHeight + 'px'
 
         setIsExpanded(newHeight > 48)
+        setIsAtMaxHeight(textarea.scrollHeight > 200)
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -79,7 +81,7 @@ export function Input({onSendMessage, disabled = false}: InputProps) {
               placeholder="Введите ваше сообщение..."
               disabled={disabled}
               rows={1}
-              className="message-textarea"
+              className={`message-textarea ${isAtMaxHeight ? 'scrollable' : ''}`}
           />
                     <button
                         type="submit"
