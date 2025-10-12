@@ -43,11 +43,37 @@
     font-size: 18px;
     font-weight: 600;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.user-info {
-    font-size: 14px;
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.delete-chat-header-button {
+    background: none;
+    border: none;
     color: var(--text-secondary);
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.delete-chat-header-button:hover {
+    background-color: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
 }
 
 .chat-messages {

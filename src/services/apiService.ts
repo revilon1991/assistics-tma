@@ -147,6 +147,17 @@ class ApiService {
             throw error
         }
     }
+
+    async deleteChat(chatId: string): Promise<void> {
+        try {
+            await this.makeRequest<void>(`/api/chats/${chatId}`, {
+                method: 'DELETE'
+            })
+        } catch (error) {
+            console.error('Failed to delete chat:', error)
+            throw error
+        }
+    }
 }
 
 export const apiService = new ApiService()

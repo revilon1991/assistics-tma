@@ -13,6 +13,7 @@ interface AppStore extends AppState {
     createNewChat: () => Promise<void>
     loadChat: (chatId: string) => Promise<void>
     sendMessage: (content: string) => Promise<void>
+    deleteChat: (chatId: string) => Promise<void>
 
     toggleSidebar: () => void
     setSidebarOpen: (open: boolean) => void
@@ -167,6 +168,31 @@ export const useAppStore = create<AppStore>()(
                         message: 'Не удалось отправить сообщение'
                     })
                     set({isTyping: false})
+                }
+            },
+
+            deleteChat: async (chatId: string) => {
+                try {
+                    await apiService.deleteChat(chatId)
+                    
+                    const {chats, currentChatId} = get()
+                    const updatedChats = chats.filter(chat => chat.id !== chatId)
+                    
+                    set({
+                        chats: updatedChats,
+                        currentChatId: currentChatId === chatId ? null : currentChatId
+                    })
+                    
+                    get().addToast({
+                        type: 'success',
+                        message: 'Чат успешно удален'
+                    })
+                } catch (error) {
+                    console.error('Failed to delete chat:', error)
+                    get().addToast({
+                        type: 'error',
+                        message: 'Не удалось удалить чат'
+                    })
                 }
             },
 

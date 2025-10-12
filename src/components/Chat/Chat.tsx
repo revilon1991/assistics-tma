@@ -1,5 +1,5 @@
 import {useEffect, useRef} from 'react'
-import {Bot, Menu, User} from 'lucide-react'
+import {Bot, Menu, User, Trash2} from 'lucide-react'
 import {useAppStore} from '@/stores/appStore'
 import {Input} from '@/components/Input/Input'
 import {formatTime} from '@/utils/helpers'
@@ -11,7 +11,8 @@ export function Chat() {
         currentChatId,
         isTyping,
         toggleSidebar,
-        sendMessage
+        sendMessage,
+        deleteChat
     } = useAppStore()
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -30,6 +31,14 @@ export function Chat() {
         await sendMessage(content)
     }
 
+    const handleDeleteChat = async () => {
+        if (!currentChatId) return
+        
+        if (confirm('Вы уверены, что хотите удалить этот чат?')) {
+            await deleteChat(currentChatId)
+        }
+    }
+
     return (
         <div className="chat">
             <header className="chat-header">
@@ -40,9 +49,19 @@ export function Chat() {
                 >
                     <Menu size={20}/>
                 </button>
-                <h1 className="chat-title">Assistant Chat</h1>
-                <div className="user-info">
-                    {/* Здесь будет информация о пользователе из Telegram */}
+                <h1 className="chat-title">
+                    {currentChat ? currentChat.title : 'Assistant Chat'}
+                </h1>
+                <div className="header-actions">
+                    {currentChatId && (
+                        <button
+                            className="delete-chat-header-button"
+                            onClick={handleDeleteChat}
+                            aria-label="Удалить чат"
+                        >
+                            <Trash2 size={20}/>
+                        </button>
+                    )}
                 </div>
             </header>
 
