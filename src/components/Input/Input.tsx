@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState} from 'react'
 import {Send} from 'lucide-react'
 import '@/components/Input/Input.css'
+import {expandViewport} from '@telegram-apps/sdk';
 
 interface InputProps {
     onSendMessage: (message: string) => Promise<void>
@@ -17,9 +18,8 @@ export function Input({onSendMessage, disabled = false}: InputProps) {
     }, [message])
 
     useEffect(() => {
-        const tg = window.Telegram?.WebApp
-        if (tg) {
-            tg.expand()
+        if (expandViewport.isAvailable()) {
+            expandViewport()
         }
     }, [])
 

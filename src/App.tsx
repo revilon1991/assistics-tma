@@ -12,9 +12,6 @@ declare global {
     interface Window {
         Telegram?: {
             WebApp?: {
-                ready: typeof miniAppReady
-                expand: typeof expandViewport
-                initData: string
                 SecureStorage: SecureStorage
             }
         }
@@ -29,12 +26,7 @@ function App() {
             try {
                 init();
 
-                const tg = window.Telegram?.WebApp
-
-                if (tg) {
-                    tg.ready()
-                    tg.expand()
-                }
+                await initializeApp()
 
                 if (mountThemeParamsSync.isAvailable()) {
                     mountThemeParamsSync()
@@ -44,7 +36,13 @@ function App() {
                     bindThemeParamsCssVars()
                 }
 
-                await initializeApp()
+                if (miniAppReady.isAvailable()) {
+                    miniAppReady()
+                }
+
+                if (expandViewport.isAvailable()) {
+                    expandViewport()
+                }
             } catch (error) {
                 console.error('Failed to initialize Telegram WebApp:', error)
             }
