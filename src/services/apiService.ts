@@ -117,9 +117,7 @@ class ApiService {
         }
     }
 
-    async sendMessage(chatId: string, content: string): Promise<Message[]> {
-        const messageId = uuidV7()
-
+    async sendMessage(chatId: string, content: string, messageId: string): Promise<Message[]> {
         try {
             const response = await this.makeRequest<Message[]>(
                 `/api/chats/${chatId}/messages/${messageId}`,

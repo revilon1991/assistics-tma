@@ -21,7 +21,7 @@ export function Chat() {
 
     useEffect(() => {
         scrollToBottom()
-    }, [currentChat?.messages])
+    }, [currentChat?.messages, isTyping])
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})

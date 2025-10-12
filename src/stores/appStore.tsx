@@ -1,9 +1,9 @@
 import {create} from 'zustand'
 import {devtools} from 'zustand/middleware'
-import {AppState, Chat, ToastMessage, AuthTokens} from '@/types'
+import {AppState, Chat, Message, ToastMessage, AuthTokens} from '@/types'
 import {apiService} from '@/services/apiService'
 import {authService} from '@/services/authService'
-import {generateId} from '@/utils/helpers'
+import {generateId, uuidV7} from '@/utils/helpers'
 import {retrieveRawInitData} from '@telegram-apps/bridge';
 
 interface AppStore extends AppState {
@@ -129,8 +129,8 @@ export const useAppStore = create<AppStore>()(
 
                 let targetChatId = currentChatId
                 let updatedChats: Chat[]
-
-                set({isTyping: true})
+                
+                const messageId = uuidV7()
 
                 try {
                     if (!targetChatId) {
@@ -147,13 +147,34 @@ export const useAppStore = create<AppStore>()(
                         updatedChats = chats
                     }
 
-                    const messages = await apiService.sendMessage(targetChatId, content)
+                    const optimisticUserMessage: Message = {
+                        id: messageId,
+                        content: content,
+                        author: 'customer',
+                        sent_at: Math.floor(Date.now() / 1000)
+                    }
 
-                    const finalChats = updatedChats.map(chat =>
+                    const chatsWithOptimisticMessage = updatedChats.map(chat =>
                         chat.id === targetChatId
                             ? {
                                 ...chat,
-                                messages: [...(chat.messages || []), ...messages],
+                                messages: [...(chat.messages || []), optimisticUserMessage]
+                            }
+                            : chat
+                    )
+
+                    set({chats: chatsWithOptimisticMessage, isTyping: true})
+
+                    const messages = await apiService.sendMessage(targetChatId, content, messageId)
+
+                    const finalChats = chatsWithOptimisticMessage.map(chat =>
+                        chat.id === targetChatId
+                            ? {
+                                ...chat,
+                                messages: [
+                                    ...(chat.messages || []).filter(m => m.id !== messageId),
+                                    ...messages
+                                ],
                                 last_message: messages[messages.length - 1]?.content || content,
                                 last_message_at: messages[messages.length - 1]?.sent_at || Math.floor(Date.now() / 1000)
                             }
@@ -163,11 +184,22 @@ export const useAppStore = create<AppStore>()(
                     set({chats: finalChats, isTyping: false})
                 } catch (error) {
                     console.error('Failed to send message:', error)
+                    
+                    const chatsWithoutOptimisticMessage = get().chats.map(chat =>
+                        chat.id === targetChatId
+                            ? {
+                                ...chat,
+                                messages: (chat.messages || []).filter(m => m.id !== messageId)
+                            }
+                            : chat
+                    )
+                    
+                    set({chats: chatsWithoutOptimisticMessage, isTyping: false})
+                    
                     get().addToast({
                         type: 'error',
                         message: 'Не удалось отправить сообщение'
                     })
-                    set({isTyping: false})
                 }
             },
 
