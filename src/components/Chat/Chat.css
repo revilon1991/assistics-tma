@@ -163,6 +163,12 @@
     word-wrap: break-word;
     line-height: 1.5;
     color: var(--text-primary);
+
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
 }
 
 .message.user .message-text {

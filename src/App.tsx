@@ -4,7 +4,7 @@ import {Sidebar} from '@/components/Sidebar/Sidebar'
 import {Toast} from '@/components/Toast/Toast'
 import {Loader} from '@/components/Loader/Loader'
 import {useAppStore} from '@/stores/appStore'
-import {expandViewport, init, miniAppReady, bindThemeParamsCssVars, mountThemeParamsSync, isTMA} from '@telegram-apps/sdk';
+import {expandViewport, init, miniAppReady, bindThemeParamsCssVars, mountThemeParamsSync, isTMA, disableVerticalSwipes} from '@telegram-apps/sdk';
 import '@/App.css'
 import {SecureStorage} from '@/types/tma'
 
@@ -36,6 +36,7 @@ function App() {
                 bindThemeParamsCssVars.ifAvailable()
                 miniAppReady.ifAvailable()
                 expandViewport.ifAvailable()
+                disableVerticalSwipes.ifAvailable()
             } catch (error) {
                 console.error('Failed to initialize Telegram WebApp:', error)
             }
