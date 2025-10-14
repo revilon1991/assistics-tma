@@ -1,5 +1,7 @@
 import {useEffect, useRef} from 'react'
 import {Bot, Menu, User, Trash2} from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import {useAppStore} from '@/stores/appStore'
 import {Input} from '@/components/Input/Input'
 import {formatTime} from '@/utils/helpers'
@@ -97,7 +99,11 @@ export function Chat() {
                                     )}
                                 </div>
                                 <div className="message-content">
-                                    <div className="message-text">{message.content}</div>
+                                    <div className="message-text">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                            {message.content}
+                                        </ReactMarkdown>
+                                    </div>
                                     <div className="message-time">
                                         {formatTime(message.sent_at)}
                                     </div>
