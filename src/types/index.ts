@@ -9,8 +9,9 @@ export interface Chat {
     id: string;
     title: string;
     started_at: number;
-    last_message: string;
+    last_message?: string;
     last_message_at: number;
+    message_count?: number;
     messages?: Message[];
     lastMessage?: string;
 }

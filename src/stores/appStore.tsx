@@ -157,7 +157,8 @@ export const useAppStore = create<AppStore>()(
                         chat.id === targetChatId
                             ? {
                                 ...chat,
-                                messages: [...(chat.messages || []), optimisticUserMessage]
+                                messages: [...(chat.messages || []), optimisticUserMessage],
+                                message_count: (chat.message_count ?? 0) + 1
                             }
                             : chat
                     )
@@ -174,6 +175,7 @@ export const useAppStore = create<AppStore>()(
                                     ...(chat.messages || []).filter(m => m.id !== messageId),
                                     ...messages
                                 ],
+                                message_count: (chat.message_count ?? 0) - 1 + messages.length,
                                 last_message: messages[messages.length - 1]?.content || content,
                                 last_message_at: messages[messages.length - 1]?.sent_at || Math.floor(Date.now() / 1000)
                             }
@@ -188,7 +190,8 @@ export const useAppStore = create<AppStore>()(
                         chat.id === targetChatId
                             ? {
                                 ...chat,
-                                messages: (chat.messages || []).filter(m => m.id !== messageId)
+                                messages: (chat.messages || []).filter(m => m.id !== messageId),
+                                message_count: Math.max((chat.message_count ?? 1) - 1, 0)
                             }
                             : chat
                     )
