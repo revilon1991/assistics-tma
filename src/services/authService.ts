@@ -5,7 +5,7 @@ class AuthService {
     private readonly clientId = 'telegram-mini-app'
     private readonly resource = 'https://assistant'
     private readonly scopeList = ['assistant:read', 'assistant:write']
-    private readonly subjectIssuer = '5002625055'
+    private readonly subjectIssuer = import.meta.env.VITE_SUBJECT_ISSUER
     
     private refreshTimer: NodeJS.Timeout | null = null
     private readonly TOKEN_STORAGE_KEY = 'auth_tokens'

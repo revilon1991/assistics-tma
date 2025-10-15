@@ -19,7 +19,8 @@ export default defineConfig(({mode}) => {
         define: {
             global: 'globalThis',
             'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL),
-            'import.meta.env.VITE_IDP_BASE_URL': JSON.stringify(env.VITE_IDP_BASE_URL)
+            'import.meta.env.VITE_IDP_BASE_URL': JSON.stringify(env.VITE_IDP_BASE_URL),
+            'import.meta.env.VITE_SUBJECT_ISSUER': JSON.stringify(env.VITE_SUBJECT_ISSUER)
         },
         resolve: {
             alias: {
