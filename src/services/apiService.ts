@@ -3,7 +3,7 @@ import {uuidV7} from '@/utils/helpers'
 import {authService} from '@/services/authService'
 
 class ApiService {
-    private baseUrl = 'https://dev.ui.assistics.net'
+    private baseUrl = import.meta.env.VITE_API_BASE_URL
 
     private async makeRequest<T>(
         endpoint: string,
