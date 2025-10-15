@@ -2,9 +2,9 @@ import {TokenResponse, AuthTokens} from '@/types/index.ts'
 
 class AuthService {
     private readonly baseUrl = import.meta.env.VITE_IDP_BASE_URL
-    private readonly clientId = 'telegram-mini-app'
-    private readonly resource = 'https://assistant'
-    private readonly scopeList = ['assistant:read', 'assistant:write']
+    private readonly clientId = import.meta.env.VITE_CLIENT_ID
+    private readonly resource = import.meta.env.VITE_RESOURCE
+    private readonly scopeList = JSON.parse(import.meta.env.VITE_SCOPE_LIST) as string[]
     private readonly subjectIssuer = import.meta.env.VITE_SUBJECT_ISSUER
     
     private refreshTimer: NodeJS.Timeout | null = null
