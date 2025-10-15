@@ -1,7 +1,7 @@
 import {TokenResponse, AuthTokens} from '@/types/index.ts'
 
 class AuthService {
-    private readonly baseUrl = 'https://idp.assistics.net'
+    private readonly baseUrl = 'https://dev.idp.assistics.net'
     private readonly clientId = 'telegram-mini-app'
     private readonly resource = 'https://assistant'
     private readonly scopeList = ['assistant:read', 'assistant:write']
