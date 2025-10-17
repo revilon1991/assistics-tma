@@ -1,7 +1,7 @@
 export interface Message {
     id: string;
     content: string;
-    author: 'customer' | 'assistant';
+    author: 'customer' | 'assistics';
     sent_at: number;
 }
 

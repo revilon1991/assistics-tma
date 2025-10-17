@@ -82,7 +82,7 @@ class AuthService {
 
         if (grantType === 'token-exchange') {
             body.auth_method = 'none'
-            body.subject_token_type = 'urn:assistant-idp:token-type:telegram-init-data;v=1'
+            body.subject_token_type = 'urn:assistics-idp:token-type:telegram-init-data;v=1'
             body.subject_token = subjectToken
             body.subject_issuer = this.subjectIssuer
         } else if (refreshToken) {

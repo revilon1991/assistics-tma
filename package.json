@@ -1,5 +1,5 @@
 {
-    "name": "telegram-assistant-tma",
+    "name": "telegram-assistics-tma",
     "version": "2.0.0",
     "description": "Telegram Mini App для чата с AI ассистентом на React + @tma.js/sdk",
     "type": "module",
@@ -41,7 +41,7 @@
         "mini-app",
         "chat",
         "ai",
-        "assistant",
+        "assistics",
         "react",
         "typescript",
         "tma.js"

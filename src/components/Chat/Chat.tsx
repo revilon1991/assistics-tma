@@ -52,7 +52,7 @@ export function Chat() {
                     <Menu size={20}/>
                 </button>
                 <h1 className="chat-title">
-                    {currentChat ? currentChat.title : 'Assistant Chat'}
+                    {currentChat ? currentChat.title : 'Assistics Chat'}
                 </h1>
                 <div className="header-actions">
                     {currentChatId && (
@@ -112,7 +112,7 @@ export function Chat() {
                         ))}
 
                         {isTyping && (
-                            <div className="message assistant">
+                            <div className="message assistics">
                                 <div className="message-avatar">
                                     <Bot size={16}/>
                                 </div>
