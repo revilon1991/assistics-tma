@@ -35,7 +35,7 @@ export function Chat() {
 
     const handleDeleteChat = async () => {
         if (!currentChatId) return
-        
+
         if (confirm('Вы уверены, что хотите удалить этот чат?')) {
             await deleteChat(currentChatId)
         }

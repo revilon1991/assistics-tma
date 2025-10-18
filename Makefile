@@ -15,10 +15,10 @@ help:
 	@printf "  deploy-prod       — Deploy main branch to prod server\n"
 
 upload-prod:
-	scp -r dist deployer@18.198.250.222:/www/assistant-tma/
+	scp -r dist deployer@18.198.250.222:/www/assistics-tma/
 
 upload-dev:
-	scp -r dist deployer@18.198.250.222:/www/assistant-tma-dev/
+	scp -r dist deployer@18.198.250.222:/www/assistics-tma-dev/
 
 build-dev:
 	npm run build:dev
