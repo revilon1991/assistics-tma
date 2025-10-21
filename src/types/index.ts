@@ -58,6 +58,24 @@ export interface AuthTokens {
     issuedAt: number;
 }
 
+export interface TmaUser {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    username?: string;
+    language_code?: string;
+    is_premium?: boolean;
+    allows_write_to_pm?: boolean;
+    photo_url?: string;
+}
+
+export interface UpdateCustomerRequest {
+    first_name: string;
+    last_name?: string;
+    language_code?: string;
+    tma_user: TmaUser;
+}
+
 export interface AppState {
     tmaInitData: string;
     chats: Chat[];

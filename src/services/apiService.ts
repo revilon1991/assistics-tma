@@ -1,4 +1,4 @@
-import {Chat, Message} from '@/types/index.ts'
+import {Chat, Message, UpdateCustomerRequest} from '@/types/index.ts'
 import {uuidV7} from '@/utils/helpers'
 import {authService} from '@/services/authService'
 
@@ -154,6 +154,21 @@ class ApiService {
         } catch (error) {
             console.error('Failed to delete chat:', error)
             throw error
+        }
+    }
+
+    async updateCustomer(customerData: UpdateCustomerRequest): Promise<void> {
+        try {
+            await this.makeRequest<void>('/api/customers/me', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(customerData)
+            })
+            console.log('Customer data updated successfully')
+        } catch (error) {
+            console.error('Failed to update customer:', error)
         }
     }
 }

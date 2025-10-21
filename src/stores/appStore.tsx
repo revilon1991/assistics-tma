@@ -1,14 +1,17 @@
 import {create} from 'zustand'
 import {devtools} from 'zustand/middleware'
-import {AppState, Chat, Message, ToastMessage, AuthTokens} from '@/types'
+import {AppState, Chat, Message, ToastMessage, AuthTokens, UpdateCustomerRequest} from '@/types'
 import {apiService} from '@/services/apiService'
 import {authService} from '@/services/authService'
 import {generateId, uuidV7} from '@/utils/helpers'
 import {retrieveRawInitData} from '@telegram-apps/bridge';
+import {parseInitDataQuery} from '@telegram-apps/transformers';
+import type {User} from '@telegram-apps/types';
 
 interface AppStore extends AppState {
     initializeApp: () => Promise<void>
     authenticate: () => Promise<void>
+    updateCustomerInfo: () => Promise<void>
 
     createNewChat: () => Promise<void>
     loadChat: (chatId: string) => Promise<void>
@@ -54,6 +57,10 @@ export const useAppStore = create<AppStore>()(
                         await get().authenticate()
                     }
 
+                    get().updateCustomerInfo().catch(error => {
+                        console.error('Failed to update customer info:', error)
+                    })
+
                     const chats = await apiService.getChats()
                     set({chats, isLoading: false})
                 } catch (error) {
@@ -78,6 +85,41 @@ export const useAppStore = create<AppStore>()(
                         message: 'Не удалось авторизоваться'
                     })
                     throw error
+                }
+            },
+
+            updateCustomerInfo: async () => {
+                const {tmaInitData} = get()
+                
+                try {
+                    const initData = parseInitDataQuery(tmaInitData)
+                    
+                    if (!initData || !initData.user) {
+                        console.warn('No user data available in initData')
+                        return
+                    }
+
+                    const user = initData.user as User
+
+                    const customerData: UpdateCustomerRequest = {
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                        language_code: user.language_code,
+                        tma_user: {
+                            id: user.id,
+                            first_name: user.first_name,
+                            last_name: user.last_name,
+                            username: user.username,
+                            language_code: user.language_code,
+                            is_premium: user.is_premium,
+                            allows_write_to_pm: user.allows_write_to_pm,
+                            photo_url: user.photo_url,
+                        }
+                    }
+
+                    await apiService.updateCustomer(customerData)
+                } catch (error) {
+                    console.error('Failed to update customer info:', error)
                 }
             },
 
