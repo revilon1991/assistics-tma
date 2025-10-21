@@ -65,7 +65,9 @@ export interface TmaUser {
     username?: string;
     language_code?: string;
     is_premium?: boolean;
+    is_bot?: boolean;
     allows_write_to_pm?: boolean;
+    added_to_attachment_menu?: boolean;
     photo_url?: string;
 }
 

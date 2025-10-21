@@ -112,7 +112,9 @@ export const useAppStore = create<AppStore>()(
                             username: user.username,
                             language_code: user.language_code,
                             is_premium: user.is_premium,
+                            is_bot: user.is_bot,
                             allows_write_to_pm: user.allows_write_to_pm,
+                            added_to_attachment_menu: user.added_to_attachment_menu,
                             photo_url: user.photo_url,
                         }
                     }
