@@ -47,9 +47,11 @@ export const useAppStore = create<AppStore>()(
             initializeApp: async () => {
                 set({isLoading: true})
 
-                const tmaInitData = retrieveRawInitData()
+                const tmaInitData = retrieveRawInitData() || ''
 
                 set({tmaInitData: tmaInitData})
+
+                authService.setTmaInitData(tmaInitData)
 
                 try {
                     const isAuth = await authService.isAuthenticated()
@@ -67,7 +69,7 @@ export const useAppStore = create<AppStore>()(
                     console.error('Failed to initialize app:', error)
                     get().addToast({
                         type: 'error',
-                        message: 'Не удалось инициализировать приложение'
+                        message: 'Не удалось инициализировать приложение. Пожалуйста, перезапустите приложение'
                     })
                     set({isLoading: false})
                 }
@@ -138,9 +140,10 @@ export const useAppStore = create<AppStore>()(
                     })
                 } catch (error) {
                     console.error('Failed to create chat:', error)
+                    const errorMessage = error instanceof Error ? error.message : 'Не удалось создать новый чат'
                     get().addToast({
                         type: 'error',
-                        message: 'Не удалось создать новый чат'
+                        message: errorMessage
                     })
                     set({isLoading: false})
                 }
@@ -157,9 +160,10 @@ export const useAppStore = create<AppStore>()(
                     set({chats: updatedChats, isLoading: false, sidebarOpen: false})
                 } catch (error) {
                     console.error('Failed to load chat:', error)
+                    const errorMessage = error instanceof Error ? error.message : 'Не удалось загрузить чат'
                     get().addToast({
                         type: 'error',
-                        message: 'Не удалось загрузить чат'
+                        message: errorMessage
                     })
                     set({isLoading: false})
                 }
@@ -241,10 +245,12 @@ export const useAppStore = create<AppStore>()(
                     )
                     
                     set({chats: chatsWithoutOptimisticMessage, isTyping: false})
+
+                    const errorMessage = error instanceof Error ? error.message : 'Не удалось отправить сообщение'
                     
                     get().addToast({
                         type: 'error',
-                        message: 'Не удалось отправить сообщение'
+                        message: errorMessage
                     })
                 }
             },
@@ -267,9 +273,10 @@ export const useAppStore = create<AppStore>()(
                     })
                 } catch (error) {
                     console.error('Failed to delete chat:', error)
+                    const errorMessage = error instanceof Error ? error.message : 'Не удалось удалить чат'
                     get().addToast({
                         type: 'error',
-                        message: 'Не удалось удалить чат'
+                        message: errorMessage
                     })
                 }
             },

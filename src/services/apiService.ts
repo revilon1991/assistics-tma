@@ -4,58 +4,99 @@ import {authService} from '@/services/authService'
 
 class ApiService {
     private baseUrl = import.meta.env.VITE_API_BASE_URL
+    private readonly MAX_RETRIES = 3
 
     private async makeRequest<T>(
         endpoint: string,
-        options: RequestInit = {}
+        options: RequestInit = {},
+        retryCount: number = 0
     ): Promise<T> {
-        const accessToken = await authService.getAccessToken()
-        
-        if (!accessToken) {
-            throw new Error('Нет токена авторизации')
-        }
-
-        const defaultOptions: RequestInit = {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
-                ...options.headers
-            }
-        }
-
-        const finalOptions = {
-            ...defaultOptions,
-            ...options,
-            headers: {
-                ...defaultOptions.headers,
-                ...options.headers
-            }
-        }
-
-        console.log(`API Request: ${finalOptions.method} ${this.baseUrl}${endpoint}`)
-        console.log('Headers:', finalOptions.headers)
-
-        const response = await fetch(`${this.baseUrl}${endpoint}`, finalOptions)
-
-        if (!response.ok) {
-            console.error(`API Error: ${finalOptions.method} ${this.baseUrl}${endpoint}`, {
-                status: response.status,
-                statusText: response.statusText,
-                headers: Object.fromEntries(response.headers.entries())
-            })
-            throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`)
-        }
-
-        if (response.status === 204) {
-            return {} as T
-        }
-
         try {
-            return await response.json()
+            let accessToken = await authService.getAccessToken()
+
+            if (!accessToken) {
+                console.log('Токен отсутствует, пробуем получить новый')
+                try {
+                    await authService.refreshTokens()
+                    accessToken = await authService.getAccessToken()
+                } catch (error) {
+                    console.error('Не удалось получить токен:', error)
+                    throw new Error('Не удалось авторизоваться')
+                }
+                
+                if (!accessToken) {
+                    throw new Error('Не удалось получить токен авторизации')
+                }
+            }
+
+            const defaultOptions: RequestInit = {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                    ...options.headers
+                }
+            }
+
+            const finalOptions = {
+                ...defaultOptions,
+                ...options,
+                headers: {
+                    ...defaultOptions.headers,
+                    ...options.headers
+                }
+            }
+
+            console.log(`API Request: ${finalOptions.method} ${this.baseUrl}${endpoint} (попытка ${retryCount + 1}/${this.MAX_RETRIES})`)
+
+            const response = await fetch(`${this.baseUrl}${endpoint}`, finalOptions)
+
+            if (response.status === 401) {
+                console.warn('Получен 401, токен устарел')
+                
+                if (retryCount < this.MAX_RETRIES - 1) {
+                    console.log('Обновляем токен и повторяем запрос...')
+                    try {
+                        await authService.refreshTokens()
+
+                        return await this.makeRequest<T>(endpoint, options, retryCount + 1)
+                    } catch (error) {
+                        console.error('Не удалось обновить токен:', error)
+                        if (retryCount < this.MAX_RETRIES - 1) {
+                            return await this.makeRequest<T>(endpoint, options, retryCount + 1)
+                        }
+                    }
+                }
+                
+                throw new Error('Не удалось авторизоваться после нескольких попыток. Пожалуйста, перезапустите приложение')
+            }
+
+            if (!response.ok) {
+                console.error(`API Error: ${finalOptions.method} ${this.baseUrl}${endpoint}`, {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries())
+                })
+                throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`)
+            }
+
+            if (response.status === 204) {
+                return {} as T
+            }
+
+            try {
+                return await response.json()
+            } catch (error) {
+                console.warn('Failed to parse JSON response, returning empty object')
+                return {} as T
+            }
         } catch (error) {
-            console.warn('Failed to parse JSON response, returning empty object')
-            return {} as T
+            if (retryCount < this.MAX_RETRIES - 1 && error instanceof Error && !error.message.includes('перезапустите')) {
+                console.log(`Ошибка запроса, пробуем еще раз (попытка ${retryCount + 2}/${this.MAX_RETRIES})`)
+                await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)))
+                return await this.makeRequest<T>(endpoint, options, retryCount + 1)
+            }
+            throw error
         }
     }
 

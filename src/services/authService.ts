@@ -1,4 +1,4 @@
-import {TokenResponse, AuthTokens} from '@/types/index.ts'
+import {AuthTokens, TokenResponse} from '@/types/index.ts'
 
 class AuthService {
     private readonly baseUrl = import.meta.env.VITE_IDP_BASE_URL
@@ -9,6 +9,9 @@ class AuthService {
     
     private refreshTimer: NodeJS.Timeout | null = null
     private readonly TOKEN_STORAGE_KEY = 'auth_tokens'
+    private tmaInitData: string = ''
+    private isRefreshing: boolean = false
+    private refreshPromise: Promise<AuthTokens> | null = null
 
     private async getStoredTokens(): Promise<AuthTokens | null> {
         return new Promise((resolve) => {
@@ -134,9 +137,15 @@ class AuthService {
         }, timeUntilRefresh)
     }
 
+    setTmaInitData(initData: string): void {
+        this.tmaInitData = initData
+    }
+
     async authenticate(tmaInitData: string): Promise<AuthTokens> {
         try {
             console.log('Начинаем авторизацию...')
+            
+            this.tmaInitData = tmaInitData
             
             const tokenResponse = await this.requestTokens(tmaInitData, 'token-exchange')
             const tokens = this.convertToAuthTokens(tokenResponse)
@@ -153,25 +162,57 @@ class AuthService {
     }
 
     async refreshTokens(): Promise<AuthTokens> {
+        if (this.isRefreshing && this.refreshPromise) {
+            console.log('Ожидание завершения текущего обновления токенов...')
+            return this.refreshPromise
+        }
+
+        this.isRefreshing = true
+        this.refreshPromise = this.doRefreshTokens()
+
+        try {
+            return await this.refreshPromise
+        } finally {
+            this.isRefreshing = false
+            this.refreshPromise = null
+        }
+    }
+
+    private async doRefreshTokens(): Promise<AuthTokens> {
         try {
             console.log('Обновляем токены...')
             
             const storedTokens = await this.getStoredTokens()
             if (!storedTokens) {
-                throw new Error('Нет сохраненных токенов для обновления')
+                console.log('Нет сохраненных токенов, пробуем авторизоваться заново')
+                if (!this.tmaInitData) {
+                    throw new Error('Нет данных для авторизации')
+                }
+                return await this.authenticate(this.tmaInitData)
             }
 
-            const tokenResponse = await this.requestTokens('', 'refresh_token', storedTokens.refreshToken)
-            const tokens = this.convertToAuthTokens(tokenResponse)
-            
-            await this.storeTokens(tokens)
-            this.setRefreshTimer(tokens)
-            
-            console.log('Токены успешно обновлены')
-            return tokens
+            try {
+                const tokenResponse = await this.requestTokens('', 'refresh_token', storedTokens.refreshToken)
+                const tokens = this.convertToAuthTokens(tokenResponse)
+                
+                await this.storeTokens(tokens)
+                this.setRefreshTimer(tokens)
+                
+                console.log('Токены успешно обновлены')
+                return tokens
+            } catch (error) {
+                console.error('Ошибка обновления токенов, пробуем повторную авторизацию')
+                
+                await this.clearStoredTokens()
+                
+                if (!this.tmaInitData) {
+                    throw new Error('Нет данных для повторной авторизации')
+                }
+                
+                return await this.authenticate(this.tmaInitData)
+            }
         } catch (error) {
             console.error('Ошибка обновления токенов:', error)
-
             await this.clearStoredTokens()
             throw error
         }
