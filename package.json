@@ -8,7 +8,7 @@
         "build": "tsc && vite build",
         "build:dev": "npm run clean && tsc && vite build --mode development",
         "build:prod": "npm run clean && tsc && vite build --mode production",
-        "clean": "rm -rf dist node_modules/.vite",
+        "clean": "rm -rf dist node_modules/.vite node_modules/.cache",
         "preview": "vite preview",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "type-check": "tsc --noEmit"
