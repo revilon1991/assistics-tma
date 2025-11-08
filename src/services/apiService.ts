@@ -102,7 +102,7 @@ class ApiService {
 
     async getChats(): Promise<Chat[]> {
         try {
-            const chats = await this.makeRequest<Chat[]>('/api/chats')
+            const chats = await this.makeRequest<Chat[]>('/api/chats?order=desc&sort_by[]=lastMessageAt')
             return chats || []
         } catch (error) {
             console.error('Failed to fetch chats:', error)
