@@ -1,8 +1,10 @@
 import {useEffect, useRef, useState} from 'react'
 import {Send, Mic} from 'lucide-react'
-import '@/components/Input/Input.css'
-import {expandViewport} from '@telegram-apps/sdk';
+import {Button} from '@/components/ui/button'
+import {Textarea} from '@/components/ui/textarea'
+import {expandViewport} from '@telegram-apps/sdk'
 import {useAudioRecorder} from 'react-audio-voice-recorder'
+import {cn} from '@/lib/utils'
 
 interface InputProps {
     onSendMessage: (message: string) => Promise<void>
@@ -14,8 +16,6 @@ interface InputProps {
 
 export function Input({onSendMessage, onSendVoiceMessage, onRecordingStateChange, disabled = false, isTyping = false}: InputProps) {
     const [message, setMessage] = useState('')
-    const [isExpanded, setIsExpanded] = useState(false)
-    const [isAtMaxHeight, setIsAtMaxHeight] = useState(false)
     const [isRecording, setIsRecording] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     
@@ -73,26 +73,10 @@ export function Input({onSendMessage, onSendVoiceMessage, onRecordingStateChange
     }, [])
 
     useEffect(() => {
-        adjustHeight()
-    }, [message])
-
-    useEffect(() => {
         if (expandViewport.isAvailable()) {
             expandViewport()
         }
     }, [])
-
-    const adjustHeight = () => {
-        const textarea = textareaRef.current
-        if (!textarea) return
-
-        textarea.style.height = 'auto'
-        const newHeight = Math.min(textarea.scrollHeight, 200)
-        textarea.style.height = newHeight + 'px'
-
-        setIsExpanded(newHeight > 48)
-        setIsAtMaxHeight(textarea.scrollHeight > 200)
-    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -128,7 +112,7 @@ export function Input({onSendMessage, onSendVoiceMessage, onRecordingStateChange
 
     const handleVoiceRecordStart = async () => {
         if (disabled || !onSendVoiceMessage) return
-        
+
         if (microphonePermission === 'denied') {
             setPermissionDenied(true)
             return
@@ -155,6 +139,7 @@ export function Input({onSendMessage, onSendVoiceMessage, onRecordingStateChange
         }
         
         try {
+            console.log('✅ Setting isRecording to TRUE')
             setIsRecording(true)
             onRecordingStateChange?.(true)
             await recorderControls.startRecording()
@@ -239,12 +224,14 @@ export function Input({onSendMessage, onSendVoiceMessage, onRecordingStateChange
     }, [recorderControls.recordingBlob, onSendVoiceMessage, onRecordingStateChange])
 
     const handleMouseDown = () => {
+        console.log('🎤 handleMouseDown called, message:', message.trim(), 'permissionDenied:', permissionDenied)
         if (!message.trim() && !permissionDenied) {
             handleVoiceRecordStart()
         }
     }
 
     const handleMouseUp = () => {
+        console.log('🛑 handleMouseUp called, isRecording:', isRecording)
         if (isRecording) {
             handleVoiceRecordStop()
         }
@@ -271,10 +258,10 @@ export function Input({onSendMessage, onSendVoiceMessage, onRecordingStateChange
     }, [message, microphonePermission])
 
     return (
-        <div className={`input-container ${isExpanded ? 'expanded' : ''}`}>
-            <form onSubmit={handleSubmit} className="input-form">
-                <div className="input-wrapper">
-                    <textarea
+        <div className="bg-background p-4 flex-shrink-0">
+            <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
+                <div className="flex gap-3 items-end">
+                    <Textarea
                         ref={textareaRef}
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
@@ -287,34 +274,71 @@ export function Input({onSendMessage, onSendVoiceMessage, onRecordingStateChange
                         }
                         disabled={disabled || isTyping}
                         rows={1}
-                        className={`message-textarea ${isAtMaxHeight ? 'scrollable' : ''}`}
-                    />
+                        className={cn(
+                            "min-h-[48px] max-h-[200px] resize-none select-text",
+                            "rounded-3xl px-4 py-3 text-base"
+                        )}
+                    >
+
+                    </Textarea>
                     {message.trim() ? (
-                        <button
+                        <Button
                             type="submit"
                             disabled={disabled || isTyping}
-                            className="send-button"
+                            size="icon"
+                            className="h-12 w-12 rounded-xl flex-shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
                             aria-label="Отправить сообщение"
                         >
-                            <Send size={20}/>
-                        </button>
+                            <Send size={24}/>
+                        </Button>
                     ) : (
-                        <button
+                        <Button
                             type="button"
                             disabled={disabled || isTyping || permissionDenied}
-                            className={`voice-button ${isRecording ? 'recording' : ''} ${permissionDenied ? 'permission-denied' : ''}`}
-                            aria-label={permissionDenied ? "Доступ к микрофону запрещен" : "Удерживайте для записи голосового сообщения"}
+                            size="icon"
+                            data-recording={isRecording ? 'true' : 'false'}
+                            className={cn(
+                                "relative h-12 w-12  flex-shrink-0 transition-all rounded-full !text-white",
+                                isRecording && "!bg-red-500 !text-white animate-pulse scale-200 shadow-lg shadow-red-500/50",
+                                permissionDenied && "!bg-muted opacity-60 cursor-not-allowed"
+                            )}
+                            aria-label={permissionDenied ? "Доступ к микрофону запрещен" : isRecording ? "🔴 Идет запись..." : "Удерживайте для записи голосового сообщения"}
                             onMouseDown={handleMouseDown}
                             onMouseUp={handleMouseUp}
                             onMouseLeave={handleMouseUp}
                             onTouchStart={handleTouchStart}
                             onTouchEnd={handleTouchEnd}
                         >
-                            <Mic size={20}/>
-                        </button>
+                            <Mic size={20} className={cn(
+                                "transition-transform",
+                                isRecording && "scale-125"
+                            )}
+
+                            />
+                            {isRecording && (
+                                <span className="absolute -top-1 -left-1 flex h-4 w-4">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white"></span>
+                                </span>
+                            )}
+                        </Button>
                     )}
                 </div>
             </form>
+            <style>{`
+                .input-container [class*="audio"],
+                .input-container [class*="visualizer"],
+                .input-container [class*="recorder"],
+                .input-container canvas {
+                    display: none !important;
+                    visibility: hidden !important;
+                    position: absolute !important;
+                    width: 0 !important;
+                    height: 0 !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                }
+            `}</style>
         </div>
     )
 }

@@ -6,7 +6,14 @@ import {useAppStore} from '@/stores/appStore'
 import {Input} from '@/components/Input/Input'
 import {VoiceRecordingOverlay} from '@/components/VoiceRecordingOverlay/VoiceRecordingOverlay'
 import {formatTime} from '@/utils/helpers'
-import '@/components/Chat/Chat.css'
+import {Button} from '@/components/ui/button'
+import {ScrollArea} from '@/components/ui/scroll-area'
+import {ThemeToggle} from '@/components/ThemeToggle/ThemeToggle'
+import {cn} from '@/lib/utils'
+import {
+    Card,
+    CardContent,
+} from "@/components/ui/card"
 
 export function Chat() {
     const {
@@ -23,6 +30,7 @@ export function Chat() {
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
     const currentChat = chats.find(chat => chat.id === currentChatId)
+    const isFirstChat = chats.length === 0
 
     useEffect(() => {
         scrollToBottom()
@@ -58,73 +66,124 @@ export function Chat() {
     }
 
     return (
-        <div className="chat">
-            <VoiceRecordingOverlay 
-                isRecording={isRecording} 
+        <div className="flex flex-col flex-1 h-screen min-h-0">
+            <VoiceRecordingOverlay
+                isRecording={isRecording}
                 onCancel={handleCancelRecording}
             />
-            <header className="chat-header">
-                <button
-                    className="menu-button"
+            <header className="h-[60px] bg-secondary border-b flex items-center px-4 flex-shrink-0">
+                <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={toggleSidebar}
+                    className="mr-3 text-foreground hover:bg-accent"
                     aria-label="Открыть меню"
                 >
                     <Menu size={20}/>
-                </button>
-                <h1 className="chat-title">
+                </Button>
+                <h1 className="flex-1 text-lg font-semibold overflow-hidden whitespace-nowrap text-ellipsis">
                     {currentChat ? currentChat.title : 'Assistics Chat'}
                 </h1>
-                <div className="header-actions">
+                <div className="flex items-center gap-2">
+                    <ThemeToggle />
                     {currentChatId && (
-                        <button
-                            className="delete-chat-header-button"
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={handleDeleteChat}
+                            className="text-foreground hover:text-destructive hover:bg-destructive/10"
                             aria-label="Удалить чат"
                         >
                             <Trash2 size={20}/>
-                        </button>
+                        </Button>
                     )}
                 </div>
             </header>
 
-            <div className="chat-messages">
+            {/* Messages */}
+            <ScrollArea className="flex-1 min-h-0">
                 {!currentChat ? (
-                    <div className="welcome-screen">
-                        <div className="welcome-content">
-                            <Bot size={48} className="welcome-icon"/>
-                            <h2>Добро пожаловать!</h2>
-                            <p>Начните новый разговор, отправив сообщение ниже.</p>
+                    <div className="h-full flex items-center justify-center p-10">
+                        <div className="text-center max-w-md">
+                            <img 
+                                src="/images/bot-assistics-small.png"
+                                alt="Bot" 
+                                className="h-48 mx-auto mb-4"
+                            />
+                            <Card className="shadow-none mt-10">
+                                    {isFirstChat ? (
+                                        <CardContent className="text-left">
+                                            <p>
+                                                Привет! 👋<br/>
+                                                Я твой AI-помощник и уже готов подключиться к делу.
+                                            </p>
+
+                                            <b>Могу:</b> <br/>
+                                            ❓ Отвечать на вопросы <br/>
+                                            🔍 Подсказывать нужную информацию <br/>
+                                            ✅ Помогать с задачами и инструкциями <br/>
+                                            💡 Генерировать текcт/стихи/код <br/>
+                                            ⚡ Работать 24/7 без выходных
+
+                                            <p>Спрашивай, что угодно - разберёмся вместе!</p>
+                                        </CardContent>
+                                        ) : (
+                                        <CardContent className="text-left">
+                                            Начните новый разговор, отправив сообщение
+                                        </CardContent>
+                                    )}
+
+                            </Card>
                         </div>
                     </div>
                 ) : (currentChat.messages || []).length === 0 ? (
-                    <div className="welcome-screen">
-                        <div className="welcome-content">
-                            <Bot size={48} className="welcome-icon"/>
-                            <h2>Новый чат начат!</h2>
-                            <p>Отправьте первое сообщение, чтобы начать разговор.</p>
+                    <div className="h-full flex items-center justify-center p-10">
+                        <div className="text-center max-w-md">
+                            <img 
+                                src="/images/bot-assistics-small.png"
+                                alt="Bot" 
+                                className="h-24 mx-auto mb-4"
+                            />
+                            <h2 className="text-2xl font-semibold mb-3">Новый чат начат!</h2>
+                            <p className="text-muted-foreground">Отправьте первое сообщение, чтобы начать разговор.</p>
                         </div>
                     </div>
                 ) : (
-                    <div className="messages-list">
+                    <div className="max-w-3xl mx-auto p-5 w-full">
                         {(currentChat.messages || []).map((message) => (
                             <div
                                 key={message.id}
-                                className={`message ${message.author}`}
+                                className={cn(
+                                    "flex gap-3 mb-6 animate-in fade-in duration-300",
+                                    message.author === 'customer' && "flex-row-reverse"
+                                )}
                             >
-                                <div className="message-avatar">
+                                <div className={cn(
+                                    "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
+                                    message.author === 'customer' ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
+                                )}>
                                     {message.author === 'customer' ? (
                                         <User size={16}/>
                                     ) : (
                                         <Bot size={16}/>
                                     )}
                                 </div>
-                                <div className="message-content">
-                                    <div className="message-text">
+                                <div className={cn(
+                                    "flex-1 max-w-[70%] min-w-0",
+                                    message.author === 'customer' && "text-right"
+                                )}>
+                                    <div className={cn(
+                                        "rounded-xl p-3 px-4 break-words",
+                                        "select-text prose prose-sm prose lg:prose-x dark:prose-invert max-w-none",
+                                        message.author === 'customer' 
+                                            ? "bg-primary text-primary-foreground" 
+                                            : "bg-secondary text-secondary-foreground"
+                                    )}>
                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                             {message.content}
                                         </ReactMarkdown>
                                     </div>
-                                    <div className="message-time">
+                                    <div className="text-xs text-muted-foreground mt-1 px-1">
                                         {formatTime(message.sent_at)}
                                     </div>
                                 </div>
@@ -132,17 +191,17 @@ export function Chat() {
                         ))}
 
                         {isTyping && (
-                            <div className="message assistics">
-                                <div className="message-avatar">
+                            <div className="flex gap-3 mb-6">
+                                <div className="w-8 h-8 rounded-full bg-secondary text-muted-foreground flex items-center justify-center flex-shrink-0">
                                     <Bot size={16}/>
                                 </div>
-                                <div className="message-content">
-                                    <div className="typing-indicator">
-                                        <span>Печатает</span>
-                                        <div className="typing-dots">
-                                            <span></span>
-                                            <span></span>
-                                            <span></span>
+                                <div className="flex-1 max-w-[70%]">
+                                    <div className="bg-secondary rounded-xl p-3 px-4 flex items-center gap-2">
+                                        <span className="text-sm text-muted-foreground italic">Печатает</span>
+                                        <div className="flex gap-0.5">
+                                            <span className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                            <span className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                                            <span className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -152,7 +211,7 @@ export function Chat() {
                         <div ref={messagesEndRef}/>
                     </div>
                 )}
-            </div>
+            </ScrollArea>
 
             <Input 
                 onSendMessage={handleSendMessage} 
