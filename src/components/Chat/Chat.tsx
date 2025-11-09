@@ -1,9 +1,10 @@
-import {useEffect, useRef} from 'react'
+import {useEffect, useRef, useCallback, useState} from 'react'
 import {Bot, Menu, User, Trash2} from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import {useAppStore} from '@/stores/appStore'
 import {Input} from '@/components/Input/Input'
+import {VoiceRecordingOverlay} from '@/components/VoiceRecordingOverlay/VoiceRecordingOverlay'
 import {formatTime} from '@/utils/helpers'
 import '@/components/Chat/Chat.css'
 
@@ -14,9 +15,11 @@ export function Chat() {
         isTyping,
         toggleSidebar,
         sendMessage,
+        sendVoiceMessage,
         deleteChat
     } = useAppStore()
 
+    const [isRecording, setIsRecording] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
     const currentChat = chats.find(chat => chat.id === currentChatId)
@@ -29,9 +32,22 @@ export function Chat() {
         messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
     }
 
-    const handleSendMessage = async (content: string) => {
+    const handleSendMessage = useCallback(async (content: string) => {
         await sendMessage(content)
-    }
+    }, [sendMessage])
+
+    const handleSendVoiceMessage = useCallback(async (audioBlob: Blob) => {
+        setIsRecording(false)
+        await sendVoiceMessage(audioBlob)
+    }, [sendVoiceMessage])
+
+    const handleRecordingStateChange = useCallback((recording: boolean) => {
+        setIsRecording(recording)
+    }, [])
+
+    const handleCancelRecording = useCallback(() => {
+        setIsRecording(false)
+    }, [])
 
     const handleDeleteChat = async () => {
         if (!currentChatId) return
@@ -43,6 +59,10 @@ export function Chat() {
 
     return (
         <div className="chat">
+            <VoiceRecordingOverlay 
+                isRecording={isRecording} 
+                onCancel={handleCancelRecording}
+            />
             <header className="chat-header">
                 <button
                     className="menu-button"
@@ -134,7 +154,13 @@ export function Chat() {
                 )}
             </div>
 
-            <Input onSendMessage={handleSendMessage} disabled={isTyping}/>
+            <Input 
+                onSendMessage={handleSendMessage} 
+                onSendVoiceMessage={handleSendVoiceMessage}
+                onRecordingStateChange={handleRecordingStateChange}
+                disabled={isTyping}
+                isTyping={isTyping}
+            />
         </div>
     )
 }

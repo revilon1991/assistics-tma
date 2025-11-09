@@ -16,6 +16,7 @@ interface AppStore extends AppState {
     createNewChat: () => Promise<void>
     loadChat: (chatId: string) => Promise<void>
     sendMessage: (content: string) => Promise<void>
+    sendVoiceMessage: (audioBlob: Blob) => Promise<void>
     deleteChat: (chatId: string) => Promise<void>
 
     toggleSidebar: () => void
@@ -252,6 +253,93 @@ export const useAppStore = create<AppStore>()(
                         type: 'error',
                         message: errorMessage
                     })
+                }
+            },
+
+            sendVoiceMessage: async (audioBlob: Blob) => {
+                const {currentChatId, chats} = get()
+
+                let targetChatId = currentChatId
+                let updatedChats: Chat[]
+                
+                const messageId = uuidV7()
+
+                try {
+                    if (!targetChatId) {
+                        const newChat = await apiService.createChat('Новый чат')
+                        targetChatId = newChat.id
+                        
+                        updatedChats = [newChat, ...chats]
+                        set({
+                            currentChatId: targetChatId,
+                            chats: updatedChats
+                        })
+                    } else {
+                        updatedChats = chats
+                    }
+
+                    const optimisticUserMessage: Message = {
+                        id: messageId,
+                        content: '🎤 Голосовое сообщение',
+                        author: 'customer',
+                        sent_at: Math.floor(Date.now() / 1000)
+                    }
+
+                    const chatsWithOptimisticMessage = updatedChats.map(chat =>
+                        chat.id === targetChatId
+                            ? {
+                                ...chat,
+                                messages: [...(chat.messages || []), optimisticUserMessage],
+                                message_count: (chat.message_count ?? 0) + 1
+                            }
+                            : chat
+                    )
+
+                    set({chats: chatsWithOptimisticMessage, isTyping: true})
+
+                    const messages = await apiService.sendVoiceMessage(targetChatId, audioBlob, messageId)
+
+                    const finalChats = chatsWithOptimisticMessage.map(chat =>
+                        chat.id === targetChatId
+                            ? {
+                                ...chat,
+                                messages: [
+                                    ...(chat.messages || []).filter(m => m.id !== messageId),
+                                    ...messages
+                                ],
+                                message_count: (chat.message_count ?? 0) - 1 + messages.length,
+                                last_message: messages[messages.length - 1]?.content || '[Голосовое сообщение]',
+                                last_message_at: messages[messages.length - 1]?.sent_at || Math.floor(Date.now() / 1000)
+                            }
+                            : chat
+                    )
+
+                    set({chats: finalChats, isTyping: false})
+                } catch (error) {
+                    console.error('Failed to send voice message:', error)
+                    
+                    set({isTyping: false})
+                    
+                    const chatsWithoutOptimisticMessage = get().chats.map(chat =>
+                        chat.id === targetChatId
+                            ? {
+                                ...chat,
+                                messages: (chat.messages || []).filter(m => m.id !== messageId),
+                                message_count: Math.max((chat.message_count ?? 1) - 1, 0)
+                            }
+                            : chat
+                    )
+                    
+                    set({chats: chatsWithoutOptimisticMessage})
+
+                    const errorMessage = error instanceof Error ? error.message : 'Не удалось отправить голосовое сообщение'
+                    
+                    get().addToast({
+                        type: 'error',
+                        message: errorMessage
+                    })
+                    
+                    throw error
                 }
             },
 

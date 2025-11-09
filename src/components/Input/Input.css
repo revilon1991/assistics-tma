@@ -66,6 +66,62 @@
     cursor: not-allowed;
 }
 
+.voice-button {
+    width: 48px;
+    height: 48px;
+    background-color: var(--accent-color);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+    flex-shrink: 0;
+
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+}
+
+.voice-button:hover:not(:disabled) {
+    background-color: #0d8f6f;
+}
+
+.voice-button:active:not(:disabled):not(.recording) {
+    transform: scale(0.95);
+}
+
+.voice-button.recording {
+    background-color: #ef4444;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.voice-button.recording:hover {
+    background-color: #dc2626;
+}
+
+.voice-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: var(--border-color);
+}
+
+.voice-button.permission-denied {
+    background-color: #9ca3af;
+    opacity: 0.6;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+    }
+}
+
 .send-button {
     width: 48px;
     height: 48px;
@@ -114,6 +170,11 @@
         padding: 10px 14px;
     }
 
+    .voice-button {
+        width: 44px;
+        height: 44px;
+    }
+
     .send-button {
         width: 44px;
         height: 44px;
@@ -128,6 +189,11 @@
     .message-textarea {
         min-height: 40px;
         padding: 8px 12px;
+    }
+
+    .voice-button {
+        width: 40px;
+        height: 40px;
     }
 
     .send-button {
@@ -149,4 +215,17 @@
 
 .input-container {
     animation: fadeIn 0.3s ease-out;
+}
+
+.input-container [class*="audio"],
+.input-container [class*="visualizer"],
+.input-container [class*="recorder"],
+.input-container canvas {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
