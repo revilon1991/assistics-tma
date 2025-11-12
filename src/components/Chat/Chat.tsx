@@ -2,6 +2,7 @@ import {useEffect, useRef, useCallback, useState} from 'react'
 import {Bot, Menu, User, Trash2} from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeHighlight from 'rehype-highlight'
 import {useAppStore} from '@/stores/appStore'
 import {Input} from '@/components/Input/Input'
 import {VoiceRecordingOverlay} from '@/components/VoiceRecordingOverlay/VoiceRecordingOverlay'
@@ -9,6 +10,7 @@ import {formatTime} from '@/utils/helpers'
 import {Button} from '@/components/ui/button'
 import {ScrollArea} from '@/components/ui/scroll-area'
 import {ThemeToggle} from '@/components/ThemeToggle/ThemeToggle'
+import {CodeBlock} from '@/components/CodeBlock/CodeBlock'
 import {cn} from '@/lib/utils'
 import {
     Card,
@@ -101,13 +103,14 @@ export function Chat() {
             </header>
 
             {/* Messages */}
-            <ScrollArea className="flex-1 min-h-0">
+            <ScrollArea className="flex-1 min-h-0 !block">
+
                 {!currentChat ? (
                     <div className="h-full flex items-center justify-center p-10">
                         <div className="text-center max-w-md">
-                            <img 
+                            <img
                                 src="/images/bot-assistics-small.png"
-                                alt="Bot" 
+                                alt="Bot"
                                 className="h-48 mx-auto mb-4"
                             />
                             <Card className="shadow-none mt-10">
@@ -139,9 +142,9 @@ export function Chat() {
                 ) : (currentChat.messages || []).length === 0 ? (
                     <div className="h-full flex items-center justify-center p-10">
                         <div className="text-center max-w-md">
-                            <img 
+                            <img
                                 src="/images/bot-assistics-small.png"
-                                alt="Bot" 
+                                alt="Bot"
                                 className="h-24 mx-auto mb-4"
                             />
                             <h2 className="text-2xl font-semibold mb-3">Новый чат начат!</h2>
@@ -173,13 +176,31 @@ export function Chat() {
                                     message.author === 'customer' && "text-right"
                                 )}>
                                     <div className={cn(
-                                        "rounded-xl p-3 px-4 break-words",
-                                        "select-text prose prose-sm prose lg:prose-x dark:prose-invert max-w-none",
-                                        message.author === 'customer' 
-                                            ? "bg-primary text-primary-foreground" 
+                                        "rounded-xl p-3 px-4 break-words overflow-x-auto",
+                                        "select-text prose prose-sm dark:prose-invert",
+                                        message.author === 'customer'
+                                            ? "bg-primary text-primary-foreground"
                                             : "bg-secondary text-secondary-foreground"
                                     )}>
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            rehypePlugins={[rehypeHighlight]}
+                                            components={{
+                                                code: ({className, children, ...props}: any) => {
+                                                    const match = /language-(\w+)/.exec(className || '')
+                                                    const inline = !match
+                                                    return (
+                                                        <CodeBlock
+                                                            inline={inline}
+                                                            className={className}
+                                                            {...props}
+                                                        >
+                                                            {children}
+                                                        </CodeBlock>
+                                                    )
+                                                }
+                                            }}
+                                        >
                                             {message.content}
                                         </ReactMarkdown>
                                     </div>
