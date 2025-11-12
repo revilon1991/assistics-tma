@@ -172,11 +172,11 @@ export function Chat() {
                                     )}
                                 </div>
                                 <div className={cn(
-                                    "flex-1 max-w-[70%] min-w-0",
-                                    message.author === 'customer' && "text-right"
+                                    "flex flex-col max-w-[70%] min-w-0",
+                                    message.author === 'customer' && "items-end"
                                 )}>
                                     <div className={cn(
-                                        "rounded-xl p-3 px-4 break-words overflow-x-auto",
+                                        "rounded-xl p-3 px-4 break-words overflow-x-auto inline-block",
                                         "select-text prose prose-sm dark:prose-invert",
                                         message.author === 'customer'
                                             ? "bg-primary text-white"
@@ -204,7 +204,10 @@ export function Chat() {
                                             {message.content}
                                         </ReactMarkdown>
                                     </div>
-                                    <div className="text-xs text-muted-foreground mt-1 px-1">
+                                    <div className={cn(
+                                        "text-xs text-muted-foreground mt-1 px-1",
+                                        message.author === 'customer' && "text-right"
+                                    )}>
                                         {formatTime(message.sent_at)}
                                     </div>
                                 </div>
