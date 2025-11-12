@@ -130,9 +130,21 @@
     color: var(--color-primary-foreground) !important;
   }
 
+  /* Белые иконки в primary кнопках */
+  button[data-slot="button"][class*="bg-primary"] svg,
+  button.bg-primary svg {
+    color: white !important;
+  }
+
   /* Иконки в кнопках */
   button svg {
     opacity: 1 !important;
+  }
+  
+  /* Белый текст в темной теме */
+  .dark textarea,
+  .dark input {
+    color: hsl(210 40% 98%) !important;
   }
 }
 

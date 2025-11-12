@@ -163,7 +163,7 @@ export function Chat() {
                             >
                                 <div className={cn(
                                     "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
-                                    message.author === 'customer' ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
+                                    message.author === 'customer' ? "bg-primary text-white" : "bg-secondary text-muted-foreground"
                                 )}>
                                     {message.author === 'customer' ? (
                                         <User size={16}/>
@@ -179,7 +179,7 @@ export function Chat() {
                                         "rounded-xl p-3 px-4 break-words overflow-x-auto",
                                         "select-text prose prose-sm dark:prose-invert",
                                         message.author === 'customer'
-                                            ? "bg-primary text-primary-foreground"
+                                            ? "bg-primary text-white"
                                             : "bg-secondary text-secondary-foreground"
                                     )}>
                                         <ReactMarkdown

@@ -286,10 +286,10 @@ export function Input({onSendMessage, onSendVoiceMessage, onRecordingStateChange
                             type="submit"
                             disabled={disabled || isTyping}
                             size="icon"
-                            className="h-12 w-12 rounded-xl flex-shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
+                            className="h-12 w-12 rounded-full flex-shrink-0 bg-primary text-primary-foreground hover:bg-primary/90"
                             aria-label="Отправить сообщение"
                         >
-                            <Send size={24}/>
+                            <Send size={24} className="text-white" />
                         </Button>
                     ) : (
                         <Button
@@ -298,8 +298,9 @@ export function Input({onSendMessage, onSendVoiceMessage, onRecordingStateChange
                             size="icon"
                             data-recording={isRecording ? 'true' : 'false'}
                             className={cn(
-                                "relative h-12 w-12  flex-shrink-0 transition-all rounded-full !text-white",
-                                isRecording && "!bg-red-500 !text-white animate-pulse scale-200 shadow-lg shadow-red-500/50",
+                                "relative h-12 w-12 flex-shrink-0 transition-all rounded-full",
+                                !isRecording && !permissionDenied && "bg-primary hover:bg-primary/90",
+                                isRecording && "!bg-red-500 animate-pulse shadow-lg shadow-red-500/50",
                                 permissionDenied && "!bg-muted opacity-60 cursor-not-allowed"
                             )}
                             aria-label={permissionDenied ? "Доступ к микрофону запрещен" : isRecording ? "🔴 Идет запись..." : "Удерживайте для записи голосового сообщения"}
@@ -310,11 +311,9 @@ export function Input({onSendMessage, onSendVoiceMessage, onRecordingStateChange
                             onTouchEnd={handleTouchEnd}
                         >
                             <Mic size={20} className={cn(
-                                "transition-transform",
+                                "text-white transition-transform",
                                 isRecording && "scale-125"
-                            )}
-
-                            />
+                            )} />
                             {isRecording && (
                                 <span className="absolute -top-1 -left-1 flex h-4 w-4">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
