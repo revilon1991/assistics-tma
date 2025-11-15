@@ -103,7 +103,7 @@ export function Chat() {
             </header>
 
             {/* Messages */}
-            <ScrollArea className="flex-1 min-h-0 !block">
+            <ScrollArea className="flex-1 min-h-0">
 
                 {!currentChat ? (
                     <div className="h-full flex items-center justify-center p-10">

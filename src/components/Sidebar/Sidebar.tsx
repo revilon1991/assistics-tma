@@ -80,7 +80,7 @@ export function Sidebar() {
 
                     <Separator className="mb-3" />
 
-                    <ScrollArea className="flex-1">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-2 pr-3">
                             {chats.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-12 text-center">

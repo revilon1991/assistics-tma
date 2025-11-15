@@ -258,7 +258,7 @@ export function Input({onSendMessage, onSendVoiceMessage, onRecordingStateChange
     }, [message, microphonePermission])
 
     return (
-        <div className="bg-background p-4 flex-shrink-0">
+        <div className="bg-background p-4 flex-shrink-0 mb-2">
             <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
                 <div className="flex gap-3 items-end">
                     <Textarea

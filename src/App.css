@@ -218,7 +218,6 @@ html, body {
 .prose pre {
   border-radius: 0.5rem;
   margin: 1em 0;
-  max-width: 100%;
   overflow-x: auto;
 }
 
@@ -268,14 +267,12 @@ html, body {
 
 /* Ограничение ширины для всех элементов внутри prose */
 .prose * {
-  max-width: 100%;
   box-sizing: border-box;
 }
 
 /* Специальные стили для блоков кода в сообщениях */
 .prose pre,
 .prose pre > div {
-  max-width: 100% !important;
   overflow-x: auto !important;
   box-sizing: border-box !important;
 }
@@ -293,7 +290,6 @@ html, body {
   word-wrap: break-word;
   word-break: break-word;
   min-width: 0;
-  max-width: 100%;
   box-sizing: border-box;
 }
 
@@ -310,20 +306,17 @@ html, body {
 .prose span {
   word-break: break-word;
   overflow-wrap: break-word;
-  max-width: 100%;
 }
 
 /* Таблицы не должны выходить за границы */
 .prose table {
   display: block;
-  max-width: 100%;
   overflow-x: auto;
 }
 
 /* Ограничение для всех дочерних элементов */
 .prose * {
   box-sizing: border-box;
-  max-width: 100%;
 }
 
 /* Стили для скроллбара в блоках кода */
