@@ -2,7 +2,7 @@ import {useEffect} from 'react'
 import {Chat} from '@/components/Chat/Chat'
 import {Sidebar} from '@/components/Sidebar/Sidebar'
 import {Toast} from '@/components/Toast/Toast'
-import {Loader} from '@/components/Loader/Loader'
+import {Skeleton} from '@/components/Skeleton/Skeleton'
 import {useAppStore} from '@/stores/appStore'
 import {expandViewport, init, miniAppReady, bindThemeParamsCssVars, mountThemeParamsSync, isTMA, disableVerticalSwipes} from '@telegram-apps/sdk';
 import '@/App.css'
@@ -50,7 +50,7 @@ function App() {
             <Sidebar/>
             <Chat/>
             <Toast messages={toasts}/>
-            <Loader isVisible={isLoading}/>
+            <Skeleton isVisible={isLoading}/>
         </div>
     )
 }
