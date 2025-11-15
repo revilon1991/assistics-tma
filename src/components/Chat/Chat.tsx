@@ -176,12 +176,13 @@ export function Chat() {
                                     message.author === 'customer' && "items-end"
                                 )}>
                                     <div className={cn(
-                                        "rounded-xl p-3 px-4 break-words overflow-x-auto inline-block",
+                                        "rounded-xl p-3 px-4 w-fit max-w-full",
                                         "select-text prose prose-sm dark:prose-invert",
                                         message.author === 'customer'
                                             ? "bg-primary text-white"
                                             : "bg-secondary text-secondary-foreground"
                                     )}>
+                                        <div className="min-w-0 max-w-full break-words">
                                         <ReactMarkdown
                                             remarkPlugins={[remarkGfm]}
                                             rehypePlugins={[rehypeHighlight]}
@@ -203,6 +204,7 @@ export function Chat() {
                                         >
                                             {message.content}
                                         </ReactMarkdown>
+                                        </div>
                                     </div>
                                     <div className={cn(
                                         "text-xs text-muted-foreground mt-1 px-1",

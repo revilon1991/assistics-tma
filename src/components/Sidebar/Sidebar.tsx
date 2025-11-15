@@ -71,7 +71,7 @@ export function Sidebar() {
                 <div className="flex-1 flex flex-col min-h-0 p-3">
                     <Button
                         onClick={handleNewChat}
-                        className="w-full mb-3 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                        className="w-full mb-3 gap-2 bg-primary !text-white hover:bg-primary/90"
                         size="lg"
                     >
                         <Plus size={16}/>
