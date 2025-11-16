@@ -135,6 +135,10 @@
     flex-direction: row-reverse;
 }
 
+.message.assistics {
+    scroll-margin-top: calc(var(--header-height) + 10px);
+}
+
 .message-avatar {
     width: 32px;
     height: 32px;

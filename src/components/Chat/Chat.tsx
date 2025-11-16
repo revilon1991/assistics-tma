@@ -21,16 +21,20 @@ export function Chat() {
 
     const [isRecording, setIsRecording] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
+    const lastBotMessageRef = useRef<HTMLDivElement>(null)
 
     const currentChat = chats.find(chat => chat.id === currentChatId)
 
     useEffect(() => {
-        scrollToBottom()
+        const messages = currentChat?.messages || []
+        const lastMessage = messages[messages.length - 1]
+        
+        if (lastMessage?.author === 'assistics' && lastBotMessageRef.current) {
+            lastBotMessageRef.current.scrollIntoView({behavior: 'smooth', block: 'start'})
+        } else {
+            messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
+        }
     }, [currentChat?.messages, isTyping])
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
-    }
 
     const handleSendMessage = useCallback(async (content: string) => {
         await sendMessage(content)
@@ -106,30 +110,37 @@ export function Chat() {
                     </div>
                 ) : (
                     <div className="messages-list">
-                        {(currentChat.messages || []).map((message) => (
-                            <div
-                                key={message.id}
-                                className={`message ${message.author}`}
-                            >
-                                <div className="message-avatar">
-                                    {message.author === 'customer' ? (
-                                        <User size={16}/>
-                                    ) : (
-                                        <Bot size={16}/>
-                                    )}
-                                </div>
-                                <div className="message-content">
-                                    <div className="message-text">
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                            {message.content}
-                                        </ReactMarkdown>
+                        {(currentChat.messages || []).map((message, index, messages) => {
+                            const isLastBotMessage = message.author === 'assistics' &&
+                                (index === messages.length - 1 || 
+                                 messages.slice(index + 1).every(m => m.author === 'customer'))
+                            
+                            return (
+                                <div
+                                    key={message.id}
+                                    ref={isLastBotMessage ? lastBotMessageRef : null}
+                                    className={`message ${message.author}`}
+                                >
+                                    <div className="message-avatar">
+                                        {message.author === 'customer' ? (
+                                            <User size={16}/>
+                                        ) : (
+                                            <Bot size={16}/>
+                                        )}
                                     </div>
-                                    <div className="message-time">
-                                        {formatTime(message.sent_at)}
+                                    <div className="message-content">
+                                        <div className="message-text">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                {message.content}
+                                            </ReactMarkdown>
+                                        </div>
+                                        <div className="message-time">
+                                            {formatTime(message.sent_at)}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            )
+                        })}
 
                         {isTyping && (
                             <div className="message assistics">
