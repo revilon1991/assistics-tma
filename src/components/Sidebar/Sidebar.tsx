@@ -5,6 +5,7 @@ import {Button} from '@/components/ui/button'
 import {ScrollArea} from '@/components/ui/scroll-area'
 import {Card} from '@/components/ui/card'
 import {Separator} from '@/components/ui/separator'
+import {ThemeToggle} from '@/components/ThemeToggle/ThemeToggle'
 import {cn} from '@/lib/utils'
 
 export function Sidebar() {
@@ -56,15 +57,18 @@ export function Sidebar() {
                 {/* Header */}
                 <header className="h-[60px] px-4 flex items-center justify-between border-b bg-secondary/50">
                     <h2 className="text-lg font-semibold">История чатов</h2>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setSidebarOpen(false)}
-                        className="text-foreground hover:bg-accent"
-                        aria-label="Закрыть меню"
-                    >
-                        <X size={20}/>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <ThemeToggle />
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setSidebarOpen(false)}
+                            className="text-foreground hover:bg-accent"
+                            aria-label="Закрыть меню"
+                        >
+                            <X size={20}/>
+                        </Button>
+                    </div>
                 </header>
 
                 {/* Content */}

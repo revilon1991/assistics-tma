@@ -1,5 +1,5 @@
 import {useEffect, useRef, useCallback, useState} from 'react'
-import {Bot, Menu, User, Trash2} from 'lucide-react'
+import {Bot, Menu, User, Trash2, Plus} from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -9,7 +9,6 @@ import {VoiceRecordingOverlay} from '@/components/VoiceRecordingOverlay/VoiceRec
 import {formatTime} from '@/utils/helpers'
 import {Button} from '@/components/ui/button'
 import {ScrollArea} from '@/components/ui/scroll-area'
-import {ThemeToggle} from '@/components/ThemeToggle/ThemeToggle'
 import {CodeBlock} from '@/components/CodeBlock/CodeBlock'
 import {cn} from '@/lib/utils'
 import {
@@ -25,7 +24,8 @@ export function Chat() {
         toggleSidebar,
         sendMessage,
         sendVoiceMessage,
-        deleteChat
+        deleteChat,
+        createNewChat
     } = useAppStore()
 
     const [isRecording, setIsRecording] = useState(false)
@@ -104,6 +104,10 @@ export function Chat() {
         }
     }
 
+    const handleNewChat = async () => {
+        await createNewChat()
+    }
+
     return (
         <div className="flex flex-col flex-1 h-screen min-h-0">
             <VoiceRecordingOverlay
@@ -124,7 +128,15 @@ export function Chat() {
                     {currentChat ? currentChat.title : 'Assistics Chat'}
                 </h1>
                 <div className="flex items-center gap-2">
-                    <ThemeToggle />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleNewChat}
+                        className="text-foreground hover:bg-accent-foreground/10"
+                        aria-label="Создать новый чат"
+                    >
+                        <Plus size={32}/>
+                    </Button>
                     {currentChatId && (
                         <Button
                             variant="ghost"
