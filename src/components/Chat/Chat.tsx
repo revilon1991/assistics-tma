@@ -31,6 +31,7 @@ export function Chat() {
 
     const [isRecording, setIsRecording] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
+    const lastBotMessageRef = useRef<HTMLDivElement>(null)
 
     const currentChat = chats.find(chat => chat.id === currentChatId)
     const isFirstChat = chats.length === 0
@@ -69,12 +70,15 @@ export function Chat() {
     // };
 
     useEffect(() => {
-        scrollToBottom()
-    }, [currentChat?.messages, isTyping])
+        const messages = currentChat?.messages || []
+        const lastMessage = messages[messages.length - 1]
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
-    }
+        if (lastMessage?.author === 'assistics' && lastBotMessageRef.current) {
+            lastBotMessageRef.current.scrollIntoView({behavior: 'smooth', block: 'start'})
+        } else {
+            messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
+        }
+    }, [currentChat?.messages, isTyping])
 
     const handleSendMessage = useCallback(async (content: string) => {
         await sendMessage(content)
@@ -187,9 +191,15 @@ export function Chat() {
                     </div>
                 ) : (
                     <div className=" p-5 max-w-3xl w-dvw mx-auto">
-                        {(currentChat.messages || []).map((message) => (
+                        {(currentChat.messages || []).map((message, index, messages) => {
+                            const isLastBotMessage = message.author === 'assistics' &&
+                                (index === messages.length - 1 ||
+                                    messages.slice(index + 1).every(m => m.author === 'customer'))
+
+                            return (
                             <div
                                 key={message.id}
+                                ref={isLastBotMessage ? lastBotMessageRef : null}
                                 className={cn(
                                     "flex gap-3 mb-6 animate-in fade-in duration-300",
                                     message.author === 'customer' && "flex-row-reverse"

@@ -4,8 +4,11 @@ import App from '@/App'
 import { ThemeProvider } from '@/components/theme-provider'
 import 'highlight.js/styles/github.css';
 import 'highlight.js/styles/github-dark.css';
+import { initNewRelic } from '@/utils/newrelic'
 
 import 'zustand'
+
+initNewRelic()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
