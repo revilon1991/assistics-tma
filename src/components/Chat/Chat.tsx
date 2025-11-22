@@ -16,7 +16,6 @@ import {
     Card,
     CardContent,
 } from "@/components/ui/card"
-import {Message} from "@/types";
 
 export function Chat() {
     const {
@@ -258,7 +257,7 @@ export function Chat() {
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                        )})}
 
                         {isTyping && (
                             <div className="flex gap-3 mb-6">
