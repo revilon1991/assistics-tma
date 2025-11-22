@@ -23,28 +23,28 @@ const ONBOARDING_STORIES = [
     {
         id: 1,
         title: 'Добро пожаловать!',
-        description: 'Это ваш персональный AI-ассистент, готовый помочь вам в любое время.'
+        description: 'Это ваш персональный AI-ассистент, готовый помочь вам в любое время. Этот помощник умеет отвечать на вопросы, помогать с задачами и поддерживать беседу. Позвольте показать вам, как это работает.'
     },
     {
         id: 2,
-        title: 'Общайтесь голосом',
-        description: 'Вы можете отправлять голосовые сообщения - просто нажмите и удерживайте кнопку микрофона.'
+        videoUrl: 'https://dev.ui.assistics.net/static/doctor.mp4'
     },
     {
         id: 3,
-        title: 'Создавайте чаты',
-        description: 'Создавайте неограниченное количество чатов для разных тем и задач.'
+        videoUrl: 'https://dev.ui.assistics.net/static/font.mp4'
     },
     {
         id: 4,
-        title: 'Умный помощник',
-        description: 'Ассистент понимает контекст разговора и может помочь с различными вопросами.'
+        videoUrl: 'https://dev.ui.assistics.net/static/bills.mp4'
     },
     {
         id: 5,
-        title: 'Готово к использованию!',
-        description: 'Теперь вы можете начать общение с вашим AI-ассистентом. Приятного использования!'
-    }
+        videoUrl: 'https://dev.ui.assistics.net/static/wifi.mp4'
+    },
+    {
+        id: 6,
+        videoUrl: 'https://dev.ui.assistics.net/static/cooking.mp4'
+    },
 ]
 
 function App() {

@@ -91,6 +91,26 @@
     overflow-y: auto;
 }
 
+.stories-video-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.stories-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
 .stories-story {
     text-align: center;
     color: white;
@@ -139,7 +159,6 @@
     z-index: 10;
 }
 
-/* Анимация появления */
 @keyframes storiesFadeIn {
     from {
         opacity: 0;
@@ -153,7 +172,6 @@
     animation: storiesFadeIn 0.3s ease-out;
 }
 
-/* Адаптивность */
 @media (max-width: 480px) {
     .stories-title {
         font-size: 24px;
@@ -165,6 +183,10 @@
 
     .stories-content {
         padding: 50px 20px 70px;
+    }
+
+    .stories-video-container {
+        padding: 0;
     }
 }
 
