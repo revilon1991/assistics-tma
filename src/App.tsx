@@ -3,6 +3,7 @@ import {Chat} from '@/components/Chat/Chat'
 import {Sidebar} from '@/components/Sidebar/Sidebar'
 import {Toast} from '@/components/Toast/Toast'
 import {Skeleton} from '@/components/Skeleton/Skeleton'
+import {Stories} from '@/components/Stories/Stories'
 import {useAppStore} from '@/stores/appStore'
 import {expandViewport, init, miniAppReady, bindThemeParamsCssVars, mountThemeParamsSync, isTMA, disableVerticalSwipes} from '@telegram-apps/sdk';
 import '@/App.css'
@@ -18,8 +19,36 @@ declare global {
     }
 }
 
+const ONBOARDING_STORIES = [
+    {
+        id: 1,
+        title: 'Добро пожаловать!',
+        description: 'Это ваш персональный AI-ассистент, готовый помочь вам в любое время. Этот помощник умеет отвечать на вопросы, помогать с задачами и поддерживать беседу. Позвольте показать вам, как это работает.'
+    },
+    {
+        id: 2,
+        videoUrl: 'https://dev.ui.assistics.net/static/doctor.mp4'
+    },
+    {
+        id: 3,
+        videoUrl: 'https://dev.ui.assistics.net/static/font.mp4'
+    },
+    {
+        id: 4,
+        videoUrl: 'https://dev.ui.assistics.net/static/bills.mp4'
+    },
+    {
+        id: 5,
+        videoUrl: 'https://dev.ui.assistics.net/static/wifi.mp4'
+    },
+    {
+        id: 6,
+        videoUrl: 'https://dev.ui.assistics.net/static/cooking.mp4'
+    },
+]
+
 function App() {
-    const {initializeApp, toasts, isLoading} = useAppStore()
+    const {initializeApp, toasts, isLoading, showOnboarding, completeOnboarding, setShowOnboarding} = useAppStore()
 
     useEffect(() => {
         const initTelegram = async () => {
@@ -45,12 +74,28 @@ function App() {
         initTelegram().finally()
     }, [initializeApp])
 
+    const handleStoriesComplete = () => {
+        completeOnboarding()
+    }
+
+    const handleStoriesClose = () => {
+        setShowOnboarding(false)
+        completeOnboarding()
+    }
+
     return (
         <div className="app">
             <Sidebar/>
             <Chat/>
             <Toast messages={toasts}/>
             <Skeleton isVisible={isLoading}/>
+            {showOnboarding && (
+                <Stories
+                    stories={ONBOARDING_STORIES}
+                    onComplete={handleStoriesComplete}
+                    onClose={handleStoriesClose}
+                />
+            )}
         </div>
     )
 }
