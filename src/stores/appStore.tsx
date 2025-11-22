@@ -11,7 +11,10 @@ import type {User} from '@telegram-apps/types';
 interface AppStore extends AppState {
     initializeApp: () => Promise<void>
     authenticate: () => Promise<void>
-    updateCustomerInfo: () => Promise<void>
+    updateCustomerInfo: (onboarding?: boolean) => Promise<void>
+    checkOnboarding: () => Promise<void>
+    completeOnboarding: () => Promise<void>
+    setShowOnboarding: (show: boolean) => void
 
     createNewChat: () => Promise<void>
     loadChat: (chatId: string) => Promise<void>
@@ -44,6 +47,8 @@ export const useAppStore = create<AppStore>()(
             toasts: [],
             authTokens: null,
             isAuthenticated: false,
+            showOnboarding: false,
+            customerOnboarding: null as boolean | null,
 
             initializeApp: async () => {
                 set({isLoading: true})
@@ -60,7 +65,12 @@ export const useAppStore = create<AppStore>()(
                         await get().authenticate()
                     }
 
-                    get().updateCustomerInfo().catch(error => {
+                    // Проверяем onboarding после получения токена
+                    await get().checkOnboarding()
+
+                    // Обновляем информацию о пользователе с правильным значением onboarding
+                    const {customerOnboarding} = get()
+                    get().updateCustomerInfo(customerOnboarding === true ? true : undefined).catch(error => {
                         console.error('Failed to update customer info:', error)
                     })
 
@@ -91,7 +101,27 @@ export const useAppStore = create<AppStore>()(
                 }
             },
 
-            updateCustomerInfo: async () => {
+            checkOnboarding: async () => {
+                try {
+                    const customer = await apiService.getCustomer()
+                    set({customerOnboarding: customer.onboarding})
+                    if (!customer.onboarding) {
+                        set({showOnboarding: true})
+                    }
+                } catch (error) {
+                    console.error('Failed to check onboarding:', error)
+                    // Если не удалось получить данные, не показываем onboarding
+                }
+            },
+
+            completeOnboarding: async () => {
+                set({showOnboarding: false})
+                await get().updateCustomerInfo(true)
+            },
+
+            setShowOnboarding: (show: boolean) => set({showOnboarding: show}),
+
+            updateCustomerInfo: async (onboarding?: boolean) => {
                 const {tmaInitData} = get()
                 
                 try {
@@ -108,6 +138,7 @@ export const useAppStore = create<AppStore>()(
                         first_name: user.first_name,
                         last_name: user.last_name,
                         language_code: user.language_code,
+                        onboarding: onboarding,
                         tma_user: {
                             id: user.id,
                             first_name: user.first_name,

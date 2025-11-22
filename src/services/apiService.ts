@@ -1,4 +1,4 @@
-import {Chat, Message, UpdateCustomerRequest} from '@/types/index.ts'
+import {Chat, Message, UpdateCustomerRequest, Customer} from '@/types/index.ts'
 import {uuidV7} from '@/utils/helpers'
 import {authService} from '@/services/authService'
 
@@ -282,6 +282,15 @@ class ApiService {
             })
         } catch (error) {
             console.error('Failed to delete chat:', error)
+            throw error
+        }
+    }
+
+    async getCustomer(): Promise<Customer> {
+        try {
+            return await this.makeRequest<Customer>('/api/customers/me')
+        } catch (error) {
+            console.error('Failed to fetch customer:', error)
             throw error
         }
     }

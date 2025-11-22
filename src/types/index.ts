@@ -71,10 +71,20 @@ export interface TmaUser {
     photo_url?: string;
 }
 
+export interface Customer {
+    id: string;
+    first_name: string;
+    last_name?: string;
+    language_code?: string;
+    onboarding: boolean;
+    tma_user?: TmaUser;
+}
+
 export interface UpdateCustomerRequest {
     first_name: string;
     last_name?: string;
     language_code?: string;
+    onboarding?: boolean;
     tma_user: TmaUser;
 }
 
@@ -88,4 +98,6 @@ export interface AppState {
     toasts: ToastMessage[];
     authTokens: AuthTokens | null;
     isAuthenticated: boolean;
+    showOnboarding: boolean;
+    customerOnboarding: boolean | null;
 }
